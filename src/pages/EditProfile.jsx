@@ -8,6 +8,7 @@ import { useShop } from '../context/ShopContext';
 import { Nick } from '../components/ui';
 import { hashString } from '../utils/random';
 import { SOCIALS } from './Profile';
+import { useToast } from '../context/ToastContext';
 
 const NICK_RE = /^[a-zA-Z0-9_.-]{3,16}$/;
 const TRADE_RE = /^https:\/\/steamcommunity\.com\/tradeoffer\/new\/\?partner=\d+&token=[\w-]+$/;
@@ -31,6 +32,7 @@ export default function EditProfile() {
   const { user, profile, updateProfile } = useAuth();
   const { owns, equipped, toggleEquip } = useShop();
   const navigate = useNavigate();
+  const toast = useToast();
   const [form, setForm] = useState({ nick: user.nick, ...profile, socials: { ...profile.socials } });
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
@@ -71,6 +73,7 @@ export default function EditProfile() {
     setSaving(true);
     try {
       await updateProfile(form);
+      toast.success('Perfil salvo', 'As mudanças já aparecem para todo mundo.');
       navigate(`/perfil/${ME.nick}`);
     } catch (err) {
       setErrors({ nick: err.message });

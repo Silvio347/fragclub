@@ -10,6 +10,7 @@ import { useTeams, memberNick, resolveMember } from '../../context/TeamsContext'
 import { ratingClass } from '../../utils/levels';
 import { Avatar, LevelBadge, MapThumb, Modal, TeamLogo, Nick } from '../../components/ui';
 import TeamForm from './TeamForm';
+import { useToast } from '../../context/ToastContext';
 
 function InviteToTeamModal({ team, onClose }) {
   const { inviteToTeam } = useTeams();
@@ -93,6 +94,7 @@ function Confirm({ title, text, confirmLabel, onConfirm, onClose }) {
 export default function TeamPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const {
     getTeam,
     isMember,
@@ -435,6 +437,7 @@ export default function TeamPage() {
             submitLabel={saved ? 'Salvo ✓' : 'Salvar alterações'}
             onSubmit={async (data) => {
               await editTeam(team.id, data);
+              toast.success('Time atualizado');
               setSaved(true);
               setTimeout(() => setSaved(false), 1800);
             }}

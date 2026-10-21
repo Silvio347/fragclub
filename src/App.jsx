@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { NotificationsProvider } from './context/NotificationsContext';
 import { ShopProvider } from './context/ShopContext';
 import { TeamsProvider } from './context/TeamsContext';
@@ -58,54 +59,56 @@ function ProfileRoute() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NotificationsProvider>
-        <ShopProvider>
-          <TeamsProvider>
-            <PartyProvider>
-              <QueueProvider>
-                <Suspense fallback={<PageLoader fullscreen />}>
-                  <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/cadastro" element={<Register />} />
-                    <Route
-                      element={
-                        <RequireAuth>
-                          <Layout />
-                        </RequireAuth>
-                      }
-                    >
-                      <Route path="inicio" element={<Home />} />
-                      <Route path="jogar" element={<PlayLayout />}>
-                        <Route index element={<Ranked />} />
-                        <Route path="lobbies" element={<Lobbies />} />
-                        <Route path="retake" element={<ServerBrowser key="retake" type="retake" />} />
-                        <Route path="dm" element={<ServerBrowser key="dm" type="dm" />} />
+    <ToastProvider>
+      <AuthProvider>
+        <NotificationsProvider>
+          <ShopProvider>
+            <TeamsProvider>
+              <PartyProvider>
+                <QueueProvider>
+                  <Suspense fallback={<PageLoader fullscreen />}>
+                    <Routes>
+                      <Route path="/" element={<Landing />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/cadastro" element={<Register />} />
+                      <Route
+                        element={
+                          <RequireAuth>
+                            <Layout />
+                          </RequireAuth>
+                        }
+                      >
+                        <Route path="inicio" element={<Home />} />
+                        <Route path="jogar" element={<PlayLayout />}>
+                          <Route index element={<Ranked />} />
+                          <Route path="lobbies" element={<Lobbies />} />
+                          <Route path="retake" element={<ServerBrowser key="retake" type="retake" />} />
+                          <Route path="dm" element={<ServerBrowser key="dm" type="dm" />} />
+                        </Route>
+                        <Route path="partida/:id" element={<MatchRoute />} />
+                        <Route path="partidas/:matchId" element={<MatchDetails />} />
+                        <Route path="historico/:nick" element={<History />} />
+                        <Route path="times" element={<Teams />} />
+                        <Route path="times/:id" element={<TeamPage />} />
+                        <Route path="loja" element={<Shop />} />
+                        <Route path="ranking" element={<Ranking />} />
+                        <Route path="campeonatos" element={<Tournaments />} />
+                        <Route path="campeonatos/:id" element={<TournamentDetails />} />
+                        <Route path="amigos" element={<Friends />} />
+                        <Route path="configuracoes" element={<Settings />} />
+                        <Route path="perfil/editar" element={<EditProfile />} />
+                        <Route path="perfil/:nick" element={<ProfileRoute />} />
+                        <Route path="premium" element={<Premium />} />
                       </Route>
-                      <Route path="partida/:id" element={<MatchRoute />} />
-                      <Route path="partidas/:matchId" element={<MatchDetails />} />
-                      <Route path="historico/:nick" element={<History />} />
-                      <Route path="times" element={<Teams />} />
-                      <Route path="times/:id" element={<TeamPage />} />
-                      <Route path="loja" element={<Shop />} />
-                      <Route path="ranking" element={<Ranking />} />
-                      <Route path="campeonatos" element={<Tournaments />} />
-                      <Route path="campeonatos/:id" element={<TournamentDetails />} />
-                      <Route path="amigos" element={<Friends />} />
-                      <Route path="configuracoes" element={<Settings />} />
-                      <Route path="perfil/editar" element={<EditProfile />} />
-                      <Route path="perfil/:nick" element={<ProfileRoute />} />
-                      <Route path="premium" element={<Premium />} />
-                    </Route>
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </Suspense>
-              </QueueProvider>
-            </PartyProvider>
-          </TeamsProvider>
-        </ShopProvider>
-      </NotificationsProvider>
-    </AuthProvider>
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </Suspense>
+                </QueueProvider>
+              </PartyProvider>
+            </TeamsProvider>
+          </ShopProvider>
+        </NotificationsProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 }

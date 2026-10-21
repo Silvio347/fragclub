@@ -6,6 +6,7 @@ import { TEAM_MAX, teamStats } from '../../data/teams';
 import { useTeams, resolveMember, MY_TEAMS_LIMIT } from '../../context/TeamsContext';
 import { Modal, TeamLogo } from '../../components/ui';
 import TeamForm from './TeamForm';
+import { useToast } from '../../context/ToastContext';
 
 function TeamCard({ team, role, requested }) {
   const { avgElo, winRate } = teamStats(team, resolveMember);
@@ -39,6 +40,7 @@ function TeamCard({ team, role, requested }) {
 
 export default function Teams() {
   const navigate = useNavigate();
+  const toast = useToast();
   const { myTeams, publicTeams, requests, myRole, createTeam } = useTeams();
   const [creating, setCreating] = useState(false);
   const [q, setQ] = useState('');
@@ -57,6 +59,7 @@ export default function Teams() {
   const create = async (data) => {
     const id = await createTeam(data);
     setCreating(false);
+    toast.success('Time criado', `Agora convide seus amigos para o ${data.name}.`);
     navigate(`/times/${id}`);
   };
 

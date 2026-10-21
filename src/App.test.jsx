@@ -1,25 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import App, { ROUTER_FUTURE } from './App';
-
-const renderAt = (url) =>
-  render(
-    <MemoryRouter initialEntries={[url]} future={ROUTER_FUTURE}>
-      <App />
-    </MemoryRouter>,
-  );
-
-const login = () => localStorage.setItem('fc_session', JSON.stringify({ nick: 'silvio', email: 'a@b.com' }));
+import { screen } from '@testing-library/react';
+import { login, renderApp } from './test/utils';
 
 describe('rotas (smoke)', () => {
   it('landing abre sem login', async () => {
-    renderAt('/');
+    renderApp('/');
     expect(await screen.findByRole('heading', { level: 1, name: /CS2 competitivo/i })).toBeInTheDocument();
   });
 
   it('rota protegida sem sessão manda para o login (carregado sob demanda)', async () => {
-    renderAt('/inicio');
+    renderApp('/inicio');
     expect(await screen.findByRole('heading', { name: 'Entrar' })).toBeInTheDocument();
   });
 
@@ -36,7 +26,7 @@ describe('rotas (smoke)', () => {
     ['/configuracoes', /Novo e-mail/i],
   ])('logado, %s renderiza', async (url, text) => {
     login();
-    renderAt(url);
+    renderApp(url);
     expect((await screen.findAllByText(text))[0]).toBeInTheDocument();
   });
 });

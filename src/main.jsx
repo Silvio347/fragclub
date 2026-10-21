@@ -15,6 +15,7 @@ import './styles/shop.css';
 import './styles/edit-profile.css';
 import './styles/v3.css';
 import './styles/social.css';
+import './styles/ux.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

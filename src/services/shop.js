@@ -1,5 +1,6 @@
 import { db, request, ApiError, notFound } from './client';
 import { pushNotification } from './notifications';
+import { realtime } from './realtime';
 import { SKINS, COSMETICS, PREMIUM_ITEMS, ITEMS_BY_ID } from '../data/catalog';
 
 const KEY = 'fc_shop';
@@ -14,7 +15,11 @@ const INITIAL = {
 
 const today = () => new Date().toISOString().slice(0, 10);
 const load = () => db.get(KEY, INITIAL);
-const save = (s) => db.set(KEY, s);
+const save = (s) => {
+  db.set(KEY, s);
+  realtime.emit('shop:changed', view(s));
+  return s;
+};
 
 /** Visão pública do estado (inventário já com os dados do item). */
 function view(s) {
@@ -33,6 +38,17 @@ function findOwned(s, uid) {
   const inv = s.inventory.find((i) => i.uid === uid);
   if (!inv) throw notFound('Item do inventário');
   return inv;
+}
+
+/**
+ * Crédito de FragPoints + XP de temporada feito pelo "servidor" (ex.: fim de partida).
+ * @returns {import('../types').ShopState}
+ */
+export function grantPoints(amount, reason) {
+  const s = load();
+  const next = save({ ...s, points: s.points + amount, seasonXp: s.seasonXp + amount });
+  pushNotification({ type: 'points', title: `+${amount} FragPoints`, body: reason, link: '/loja' });
+  return view(next);
 }
 
 export const shop = {

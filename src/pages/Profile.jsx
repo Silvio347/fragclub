@@ -28,6 +28,7 @@ import { useTeams } from '../context/TeamsContext';
 import { levelProgress, ratingClass } from '../utils/levels';
 import { Avatar, LevelBadge, MapThumb, Nick, Progress, StatCard, TeamLogo } from '../components/ui';
 import MatchList from '../components/MatchList';
+import { useToast } from '../context/ToastContext';
 
 export const SOCIALS = [
   { key: 'steam', label: 'Steam', icon: Gamepad2 },
@@ -234,6 +235,7 @@ function ProfileView({ data }) {
   const { user, profile } = useAuth();
   const { myTeams } = useTeams();
   const [copied, setCopied] = useState(false);
+  const toast = useToast();
 
   const details = [
     ['Opening duels vencidos', `${player.openingSuccess}%`],
@@ -263,6 +265,7 @@ function ProfileView({ data }) {
     try {
       await navigator.clipboard.writeText(p.crosshair);
       setCopied(true);
+      toast.success('Mira copiada', 'Cole no console do CS2 ou em Configurações > Mira > Importar.');
       setTimeout(() => setCopied(false), 1800);
     } catch {
       setCopied(false);

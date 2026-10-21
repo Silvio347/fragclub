@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { api } from '../services';
+import { api, realtime } from '../services';
 import { useAuth } from './AuthContext';
 
 const ShopCtx = createContext(null);
@@ -26,8 +26,11 @@ export function ShopProvider({ children }) {
       setState(s);
       setReady(true);
     });
+    // Pontos creditados pelo servidor (ex.: fim de partida) atualizam saldo e topo na hora
+    const off = realtime.on('shop:changed', setState);
     return () => {
       alive = false;
+      off();
     };
   }, []);
 

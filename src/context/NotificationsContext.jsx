@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, realtime } from '../services';
+import { useToast } from './ToastContext';
 
 const NotifCtx = createContext(null);
 const MIN = 60 * 1000;
@@ -8,21 +9,30 @@ export function NotificationsProvider({ children }) {
   /** @type {[import('../types').AppNotification[], Function]} */
   const [items, setItems] = useState([]);
   const [ready, setReady] = useState(false);
+  const toast = useToast();
+  const known = useRef(new Set());
 
   useEffect(() => {
     let alive = true;
     api.notifications.list().then((list) => {
       if (!alive) return;
+      list.forEach((n) => known.current.add(n.id));
       setItems(list);
       setReady(true);
     });
-    // Notificações novas chegam "do servidor" (outros serviços)
-    const off = realtime.on('notifications:changed', (list) => setItems(list));
+    // Notificações novas chegam "do servidor" (outros serviços) e viram um toast
+    const off = realtime.on('notifications:changed', (list) => {
+      list
+        .filter((n) => !known.current.has(n.id) && !n.read)
+        .forEach((n) => toast.show({ type: n.type === 'system' ? 'info' : 'success', title: n.title, body: n.body }));
+      list.forEach((n) => known.current.add(n.id));
+      setItems(list);
+    });
     return () => {
       alive = false;
       off();
     };
-  }, []);
+  }, [toast]);
 
   // Atualização otimista: a UI reage na hora, o serviço confirma depois
   const optimistic = useCallback((fn, call) => {

@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
-import { NavLink, Link, Outlet, useNavigate } from 'react-router-dom';
+import { Suspense, useEffect, useState } from 'react';
+import { NavLink, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import PageLoader from './PageLoader';
 import {
   Home,
@@ -17,6 +17,8 @@ import {
   Shield,
   ShoppingBag,
   Coins,
+  Menu,
+  Search,
 } from 'lucide-react';
 import { ME } from '../data/mock';
 import { useQueue } from '../context/QueueContext';
@@ -30,11 +32,11 @@ import { Avatar, LevelBadge, Nick } from './ui';
 import MatchFoundModal from './MatchFoundModal';
 import NotificationsMenu from './NotificationsMenu';
 import GlobalSearch from './GlobalSearch';
+import Onboarding from './Onboarding';
 
-function Sidebar() {
-  const { user } = useAuth();
-  // Montado no render para refletir o nick da sessão
-  const nav = [
+// Montado no render para refletir o nick da sessão
+function navItems() {
+  return [
     { to: '/inicio', label: 'Início', icon: Home },
     { to: '/jogar', label: 'Jogar', icon: Crosshair },
     { to: '/times', label: 'Times', icon: Shield },
@@ -46,6 +48,81 @@ function Sidebar() {
     { to: `/perfil/${ME.nick}`, label: 'Perfil', icon: User },
     { to: '/premium', label: 'Premium', icon: Crown },
   ];
+}
+
+// No celular: barra fixa embaixo com os atalhos principais + gaveta "Mais"
+const MOBILE_MAIN = ['/inicio', '/jogar', '/times', '/loja'];
+
+function MobileNav({ onLogout }) {
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const items = navItems();
+  const main = items.filter((i) => MOBILE_MAIN.includes(i.to));
+  const more = items.filter((i) => !MOBILE_MAIN.includes(i.to));
+
+  // Fecha a gaveta ao trocar de página ou apertar Esc
+  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  return (
+    <>
+      <nav className="mobile-nav" aria-label="Navegação principal (celular)">
+        {main.map(({ to, label, icon: Icon }) => (
+          <NavLink key={to} to={to} className="mobile-nav-link">
+            <Icon size={20} aria-hidden="true" />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+        <button
+          type="button"
+          className={`mobile-nav-link ${open ? 'active' : ''}`}
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-controls="mobile-more"
+        >
+          <Menu size={20} aria-hidden="true" />
+          <span>Mais</span>
+        </button>
+      </nav>
+      {open && (
+        <div className="mobile-sheet-backdrop" onClick={() => setOpen(false)}>
+          <div
+            id="mobile-more"
+            className="mobile-sheet"
+            role="dialog"
+            aria-label="Mais opções"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="mobile-sheet-handle" aria-hidden="true" />
+            <div className="mobile-sheet-grid">
+              {[...more, { to: '/configuracoes', label: 'Configurações', icon: Settings }].map(
+                ({ to, label, icon: Icon }) => (
+                  <NavLink key={to} to={to} className="mobile-sheet-item">
+                    <Icon size={20} aria-hidden="true" />
+                    <span>{label}</span>
+                  </NavLink>
+                ),
+              )}
+              <button type="button" className="mobile-sheet-item" onClick={onLogout}>
+                <LogOut size={20} aria-hidden="true" />
+                <span>Sair</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function Sidebar() {
+  const { user } = useAuth();
+  const nav = navItems();
 
   return (
     <aside className="sidebar">
@@ -85,22 +162,36 @@ function Sidebar() {
   );
 }
 
-function Topbar() {
-  const { status, elapsed, cancel, mode } = useQueue();
-  const { party } = useParty();
+function useLogout() {
+  const { cancel } = useQueue();
   const { logout } = useAuth();
-  const { points } = useShop();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
+  return () => {
     cancel();
     logout();
     navigate('/', { replace: true });
   };
+}
+
+function Topbar() {
+  const { status, elapsed, cancel, mode } = useQueue();
+  const { party } = useParty();
+  const { points } = useShop();
+  const handleLogout = useLogout();
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="topbar">
+    <header className={`topbar ${searchOpen ? 'search-open' : ''}`}>
       <GlobalSearch />
+      <button
+        type="button"
+        className="icon-btn show-mobile"
+        onClick={() => setSearchOpen((o) => !o)}
+        aria-label={searchOpen ? 'Fechar busca' : 'Buscar'}
+        aria-expanded={searchOpen}
+      >
+        {searchOpen ? <X size={16} /> : <Search size={16} />}
+      </button>
 
       {status === 'searching' && (
         <div className="queue-pill" role="status">
@@ -135,10 +226,10 @@ function Topbar() {
           <Avatar nick={ME.nick} size={34} status="online" />
           <Nick nick={ME.nick} className="hide-sm" />
         </Link>
-        <Link to="/configuracoes" className="icon-btn" aria-label="Configurações da conta">
+        <Link to="/configuracoes" className="icon-btn hide-mobile" aria-label="Configurações da conta">
           <Settings size={16} />
         </Link>
-        <button type="button" className="icon-btn" onClick={handleLogout} aria-label="Sair">
+        <button type="button" className="icon-btn hide-mobile" onClick={handleLogout} aria-label="Sair">
           <LogOut size={16} />
         </button>
       </div>
@@ -152,6 +243,7 @@ export default function Layout() {
   const teams = useTeams();
   const notifs = useNotifications();
   const booted = shop.ready && teams.ready && notifs.ready;
+  const handleLogout = useLogout();
   return (
     <div className="app">
       <Sidebar />
@@ -168,7 +260,9 @@ export default function Layout() {
           )}
         </main>
       </div>
+      <MobileNav onLogout={handleLogout} />
       <MatchFoundModal />
+      {booted && <Onboarding />}
     </div>
   );
 }

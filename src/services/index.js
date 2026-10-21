@@ -12,7 +12,22 @@ import { notifications } from './notifications';
 import { auth } from './auth';
 import { account } from './account';
 import { search } from './search';
+import { live } from './live';
 
-export const api = { auth, account, players, matches, tournaments, play, friends, teams, shop, notifications, search };
+export const api = {
+  auth,
+  account,
+  players,
+  matches,
+  tournaments,
+  play,
+  friends,
+  teams,
+  shop,
+  notifications,
+  search,
+  live,
+};
+export { REPORT_REASONS } from './matches';
 export { ApiError } from './client';
 export { realtime } from './realtime';
