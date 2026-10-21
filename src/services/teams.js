@@ -66,6 +66,10 @@ function joinPublic(s, teamId, role = 'Jogador') {
   };
 }
 
+/** Uso interno de outros serviços (ex.: inscrição em campeonato). */
+export const myTeamsSync = () => view(load()).myTeams;
+export const myRoleIn = myRole;
+
 export const teams = {
   /** @returns {Promise<import('../types').TeamsState>} */
   state: () => request(() => view(load()), { min: 80, max: 200 }),

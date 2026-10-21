@@ -31,6 +31,9 @@ describe('rotas (smoke)', () => {
     ['/ranking', /Ranking CS2/i],
     ['/perfil/silvio', /Evolução de ELO/i],
     ['/partidas/silvio-0', /Rounds/i],
+    ['/amigos', /Em partida/i],
+    ['/campeonatos/t2', /Copa Noturna #142/i],
+    ['/configuracoes', /Novo e-mail/i],
   ])('logado, %s renderiza', async (url, text) => {
     login();
     renderAt(url);

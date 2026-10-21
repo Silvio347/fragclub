@@ -7,7 +7,8 @@ import {
   Trophy,
   Medal,
   User,
-  Search,
+  Settings,
+  UserRound,
   Crown,
   X,
   LogOut,
@@ -28,6 +29,7 @@ import { formatTime } from '../utils/random';
 import { Avatar, LevelBadge, Nick } from './ui';
 import MatchFoundModal from './MatchFoundModal';
 import NotificationsMenu from './NotificationsMenu';
+import GlobalSearch from './GlobalSearch';
 
 function Sidebar() {
   const { user } = useAuth();
@@ -36,6 +38,7 @@ function Sidebar() {
     { to: '/inicio', label: 'Início', icon: Home },
     { to: '/jogar', label: 'Jogar', icon: Crosshair },
     { to: '/times', label: 'Times', icon: Shield },
+    { to: '/amigos', label: 'Amigos', icon: UserRound },
     { to: '/ranking', label: 'Ranking', icon: Trophy },
     { to: '/campeonatos', label: 'Campeonatos', icon: Medal },
     { to: `/historico/${ME.nick}`, label: 'Partidas', icon: History },
@@ -97,10 +100,7 @@ function Topbar() {
 
   return (
     <header className="topbar">
-      <label className="search">
-        <Search size={16} aria-hidden="true" />
-        <input type="search" placeholder="Buscar jogadores, times, campeonatos..." aria-label="Buscar" />
-      </label>
+      <GlobalSearch />
 
       {status === 'searching' && (
         <div className="queue-pill" role="status">
@@ -134,6 +134,9 @@ function Topbar() {
         <Link to={`/perfil/${ME.nick}`} className="topbar-user">
           <Avatar nick={ME.nick} size={34} status="online" />
           <Nick nick={ME.nick} className="hide-sm" />
+        </Link>
+        <Link to="/configuracoes" className="icon-btn" aria-label="Configurações da conta">
+          <Settings size={16} />
         </Link>
         <button type="button" className="icon-btn" onClick={handleLogout} aria-label="Sair">
           <LogOut size={16} />

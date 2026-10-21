@@ -29,6 +29,9 @@ const History = lazy(() => import('./pages/History'));
 const Teams = lazy(() => import('./pages/teams/Teams'));
 const TeamPage = lazy(() => import('./pages/teams/TeamPage'));
 const Shop = lazy(() => import('./pages/Shop'));
+const Friends = lazy(() => import('./pages/Friends'));
+const TournamentDetails = lazy(() => import('./pages/TournamentDetails'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 // Comportamentos do React Router v7 já ativados (evita surpresa no upgrade)
 export const ROUTER_FUTURE = { v7_startTransition: true, v7_relativeSplatPath: true };
@@ -88,6 +91,9 @@ export default function App() {
                       <Route path="loja" element={<Shop />} />
                       <Route path="ranking" element={<Ranking />} />
                       <Route path="campeonatos" element={<Tournaments />} />
+                      <Route path="campeonatos/:id" element={<TournamentDetails />} />
+                      <Route path="amigos" element={<Friends />} />
+                      <Route path="configuracoes" element={<Settings />} />
                       <Route path="perfil/editar" element={<EditProfile />} />
                       <Route path="perfil/:nick" element={<ProfileRoute />} />
                       <Route path="premium" element={<Premium />} />

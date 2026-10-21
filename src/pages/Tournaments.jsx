@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Calendar, Users, Trophy, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Calendar, Users, Trophy, Lock, Check } from 'lucide-react';
 import { ME } from '../data/mock';
 import { api } from '../services';
 import { useQuery } from '../hooks/useQuery';
@@ -26,7 +27,6 @@ export default function Tournaments() {
 
 function TournamentsView({ tournaments }) {
   const [filter, setFilter] = useState('all');
-  const [joined, setJoined] = useState([]);
   const list = filter === 'all' ? tournaments : tournaments.filter((t) => t.status === filter);
 
   return (
@@ -57,7 +57,6 @@ function TournamentsView({ tournaments }) {
         {list.map((t) => {
           const full = t.teams >= t.slots;
           const locked = ME.level < t.minLevel;
-          const isJoined = joined.includes(t.id);
           return (
             <article key={t.id} className="card tournament">
               <div
@@ -87,30 +86,29 @@ function TournamentsView({ tournaments }) {
                   <p className="small">
                     Campeão: <strong className="accent">{t.winner}</strong>
                   </p>
-                ) : t.status === 'live' ? (
-                  <button type="button" className="btn btn-ghost btn-block">
-                    Assistir chaveamento
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className={`btn btn-block ${isJoined ? 'btn-ghost' : 'btn-primary'}`}
-                    disabled={(full || locked) && !isJoined}
-                    onClick={() => setJoined((j) => (isJoined ? j.filter((x) => x !== t.id) : [...j, t.id]))}
-                  >
-                    {locked ? (
-                      <>
-                        <Lock size={14} aria-hidden="true" /> Requer level {t.minLevel}
-                      </>
-                    ) : isJoined ? (
-                      'Inscrito · Cancelar'
-                    ) : full ? (
-                      'Lotado'
-                    ) : (
-                      'Inscrever time'
-                    )}
-                  </button>
-                )}
+                ) : t.registered ? (
+                  <span className="tag tag-win">
+                    <Check size={12} aria-hidden="true" /> Seu time está inscrito
+                  </span>
+                ) : locked ? (
+                  <span className="tag">
+                    <Lock size={12} aria-hidden="true" /> Requer level {t.minLevel}
+                  </span>
+                ) : full && t.status === 'open' ? (
+                  <span className="tag">Lotado</span>
+                ) : null}
+                <Link
+                  to={`/campeonatos/${t.id}`}
+                  className={`btn btn-block ${t.status === 'open' && !t.registered && !locked && !full ? 'btn-primary' : 'btn-ghost'}`}
+                >
+                  {t.status === 'live'
+                    ? 'Ver chaveamento ao vivo'
+                    : t.status === 'finished'
+                      ? 'Ver resultados'
+                      : t.registered
+                        ? 'Ver campeonato'
+                        : 'Ver detalhes e inscrever'}
+                </Link>
               </div>
             </article>
           );

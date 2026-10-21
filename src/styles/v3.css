@@ -183,7 +183,8 @@ fieldset.field legend,
   background: var(--accent-soft);
   color: var(--accent-2);
 }
-.notif-icon.type-friend_request {
+.notif-icon.type-friend_request,
+.notif-icon.type-friend {
   background: rgba(59, 130, 246, 0.15);
   color: #93c5fd;
 }

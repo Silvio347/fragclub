@@ -49,6 +49,8 @@ export function AuthProvider({ children }) {
   const cancelSubscription = useCallback(() => api.auth.cancelSubscription().then(apply), [apply]);
   const grantPremiumDays = useCallback((days) => api.auth.grantPremiumDays(days).then(apply), [apply]);
   const updateProfile = useCallback((data) => api.auth.updateProfile(data).then(apply), [apply]);
+  // Relê a sessão depois de mudanças feitas por outros serviços (ex.: troca de e-mail)
+  const refreshSession = useCallback(() => apply(api.auth.storedSession()), [apply]);
 
   const profile = user ? (ME.profile ?? DEFAULT_PROFILE) : DEFAULT_PROFILE;
 
@@ -64,6 +66,7 @@ export function AuthProvider({ children }) {
       cancelSubscription,
       grantPremiumDays,
       updateProfile,
+      refreshSession,
     }),
     [
       user,
@@ -76,6 +79,7 @@ export function AuthProvider({ children }) {
       cancelSubscription,
       grantPremiumDays,
       updateProfile,
+      refreshSession,
     ],
   );
 

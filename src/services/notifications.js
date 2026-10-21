@@ -1,5 +1,6 @@
 import { db, request } from './client';
 import { realtime } from './realtime';
+import { allowsNotification } from './account';
 
 const KEY = 'fc_notifs';
 const MIN = 60 * 1000;
@@ -21,8 +22,8 @@ function seed() {
       id: 'n2',
       type: 'friend_request',
       title: 'Pedido de amizade',
-      body: 'awpzera quer ser seu amigo.',
-      from: 'awpzera',
+      body: 'hsmachine quer ser seu amigo.',
+      from: 'hsmachine',
       createdAt: now - 18 * MIN,
       read: false,
     },
@@ -49,7 +50,7 @@ function seed() {
       type: 'tournament',
       title: 'Copa Noturna #142',
       body: 'O campeonato começa hoje às 22h. Inscrições fecham às 21h30.',
-      link: '/campeonatos',
+      link: '/campeonatos/t2',
       createdAt: now - 6 * 60 * MIN,
       read: true,
     },
@@ -78,6 +79,8 @@ const edit = (fn) => write(fn(read()));
  * @param {Partial<import('../types').AppNotification>} n
  */
 export function pushNotification(n) {
+  // Respeita as preferências em Configurações > Notificações
+  if (!allowsNotification(n.type)) return null;
   const item = {
     id: `n${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
     createdAt: Date.now(),

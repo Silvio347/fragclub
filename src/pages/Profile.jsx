@@ -181,13 +181,58 @@ export default function Profile() {
   );
 }
 
+// Botão de amizade reflete a relação real (amigo, pedido enviado/recebido)
+function FriendButton({ nick }) {
+  const rel = useQuery(() => api.friends.relation(nick), [nick]);
+  const [busy, setBusy] = useState(false);
+  const run = (call) => {
+    setBusy(true);
+    call()
+      .then(() => rel.refetch())
+      .finally(() => setBusy(false));
+  };
+  if (!rel.data || rel.data === 'self') return null;
+  if (rel.data === 'friend')
+    return (
+      <Link to="/amigos" className="btn btn-ghost">
+        <Check size={16} aria-hidden="true" /> Amigos
+      </Link>
+    );
+  if (rel.data === 'outgoing')
+    return (
+      <button
+        type="button"
+        className="btn btn-ghost"
+        disabled={busy}
+        onClick={() => run(() => api.friends.cancel(nick))}
+      >
+        <Check size={16} aria-hidden="true" /> Pedido enviado · cancelar
+      </button>
+    );
+  if (rel.data === 'incoming')
+    return (
+      <button
+        type="button"
+        className="btn btn-primary"
+        disabled={busy}
+        onClick={() => run(() => api.friends.accept(nick))}
+      >
+        <UserPlus size={16} aria-hidden="true" /> Aceitar pedido
+      </button>
+    );
+  return (
+    <button type="button" className="btn btn-primary" disabled={busy} onClick={() => run(() => api.friends.add(nick))}>
+      <UserPlus size={16} aria-hidden="true" /> Adicionar
+    </button>
+  );
+}
+
 function ProfileView({ data }) {
   const { player, history, elo: eloPoints, maps: mapStats, teams: otherTeams } = data;
   const prog = levelProgress(player.elo);
   const isMe = player.nick === ME.nick;
   const { user, profile } = useAuth();
   const { myTeams } = useTeams();
-  const [requested, setRequested] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const details = [
@@ -267,21 +312,7 @@ function ProfileView({ data }) {
               <Pencil size={16} aria-hidden="true" /> Editar perfil
             </Link>
           ) : (
-            <button
-              type="button"
-              className={`btn ${requested ? 'btn-ghost' : 'btn-primary'}`}
-              onClick={() => setRequested((r) => !r)}
-            >
-              {requested ? (
-                <>
-                  <Check size={16} aria-hidden="true" /> Pedido enviado
-                </>
-              ) : (
-                <>
-                  <UserPlus size={16} aria-hidden="true" /> Adicionar
-                </>
-              )}
-            </button>
+            <FriendButton nick={player.nick} />
           )}
         </div>
 

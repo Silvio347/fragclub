@@ -10,7 +10,9 @@ import { teams } from './teams';
 import { shop } from './shop';
 import { notifications } from './notifications';
 import { auth } from './auth';
+import { account } from './account';
+import { search } from './search';
 
-export const api = { auth, players, matches, tournaments, play, friends, teams, shop, notifications };
+export const api = { auth, account, players, matches, tournaments, play, friends, teams, shop, notifications, search };
 export { ApiError } from './client';
 export { realtime } from './realtime';

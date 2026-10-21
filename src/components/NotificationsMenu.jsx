@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Bell, Users, UserPlus, Swords, Coins, Trophy, Info, ShoppingBag, Check, X, Trash2 } from 'lucide-react';
 import { useNotifications, timeAgo } from '../context/NotificationsContext';
 import { useTeams } from '../context/TeamsContext';
+import { api } from '../services';
 
 const ICONS = {
   team_invite: Users,
   team: Users,
   friend_request: UserPlus,
+  friend: UserPlus,
   challenge: Swords,
   points: Coins,
   tournament: Trophy,
@@ -55,6 +57,10 @@ export default function NotificationsMenu() {
         notify({ type: 'system', title: 'Não foi possível entrar no time', body: e.message, link: '/times' });
       }
       return;
+    }
+    if (n.type === 'friend_request' && n.from) {
+      // Aceitar/recusar também atualiza a lista de amigos
+      await (accepted ? api.friends.accept(n.from) : api.friends.decline(n.from)).catch(() => {});
     }
     resolve(n.id, accepted ? 'accepted' : 'declined');
   };
