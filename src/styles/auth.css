@@ -1,0 +1,81 @@
+/* ============ Login / Cadastro ============ */
+.auth { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); min-height: 100vh; }
+.auth-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px;
+  background-size: cover;
+  background-position: center;
+  isolation: isolate;
+  overflow: hidden;
+  animation: kenburns 30s ease-in-out infinite alternate;
+}
+@keyframes kenburns { to { background-position: 70% 40%; background-size: 115%; } }
+.auth-visual-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(13, 13, 16, 0.55), rgba(13, 13, 16, 0.2) 40%, rgba(13, 13, 16, 0.92)),
+    linear-gradient(90deg, rgba(76, 29, 149, 0.45), transparent 70%);
+}
+.auth-quote { max-width: 440px; display: flex; flex-direction: column; gap: 10px; animation: hero-in-auth 0.8s ease both 0.2s; }
+.auth-quote h2 { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; }
+.auth-quote p { color: rgba(255, 255, 255, 0.75); font-size: 16px; }
+.auth-map-tag { position: absolute; right: 24px; bottom: 24px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); }
+@keyframes hero-in-auth { from { opacity: 0; transform: translateY(20px); } }
+
+.auth-main { display: grid; place-items: center; padding: 40px 24px; background: radial-gradient(500px 300px at 100% 0%, rgba(139, 92, 246, 0.12), transparent 70%), var(--bg); }
+.auth-box { width: min(420px, 100%); display: flex; flex-direction: column; gap: 14px; animation: hero-in-auth 0.6s ease both; }
+.auth-box h1 { font-size: 30px; }
+.auth-form { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label { font-weight: 600; font-size: 13px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field input, .input-wrap input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus, .input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); }
+.field input[aria-invalid='true'], .input-wrap input[aria-invalid='true'] { border-color: var(--loss); }
+.input-wrap { position: relative; }
+.input-wrap input { padding-right: 42px; }
+.input-icon { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 32px; height: 32px; border: 0; background: none; color: var(--muted); cursor: pointer; border-radius: 6px; }
+.input-icon:hover { color: var(--text); }
+.field-error, .form-error { color: #fca5a5; font-size: 12px; }
+.form-error { padding: 10px 12px; border-radius: var(--radius-sm); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+.check { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--accent); }
+.divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+.btn-steam { background: #171a21; border-color: #2a475e; color: #fff; }
+.btn-steam:hover:not(:disabled) { background: #1b2838; }
+.auth-switch { text-align: center; color: var(--muted); margin-top: 8px; }
+.auth-switch a { color: var(--accent-2); font-weight: 700; }
+.center-text { text-align: center; }
+.strength { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.strength span { height: 4px; border-radius: 4px; background: var(--surface-3); transition: background 0.2s; }
+.strength span.on.s1 { background: var(--loss); }
+.strength span.on.s2 { background: #f59e0b; }
+.strength span.on.s3 { background: var(--accent-2); }
+.strength span.on.s4 { background: var(--win); }
+.spin { animation: spin 0.8s linear infinite; }
+
+@media (max-width: 900px) {
+  .auth { grid-template-columns: minmax(0, 1fr); }
+  .auth-visual { min-height: 220px; }
+  .auth-quote h2 { font-size: 28px; }
+}
+@media (max-width: 480px) {
+  .field-row { grid-template-columns: minmax(0, 1fr); }
+}

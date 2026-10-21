@@ -1,0 +1,127 @@
+/* ============ Jogar ============ */
+.mode-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color 0.15s, background 0.15s;
+}
+.mode-tab > span { display: flex; flex-direction: column; }
+.mode-tab svg { color: var(--muted); flex-shrink: 0; }
+.mode-tab:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.mode-tab.active { border-color: var(--accent); background: linear-gradient(160deg, var(--accent-soft), transparent); }
+.mode-tab.active svg { color: var(--accent-2); }
+
+.party-panel .card-head > div:first-child { display: flex; flex-direction: column; }
+.party { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.party-panel.compact .party-slot { min-height: 150px; padding: 12px 6px; gap: 6px; }
+.party-slot strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.party-slot.pending { opacity: 0.7; border-style: dashed; }
+.spinner-sm { width: 14px; height: 14px; border-width: 2px; display: inline-block; }
+
+.field-inline { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.queue-info { display: flex; flex-direction: column; gap: 8px; color: var(--muted); }
+.queue-info li { display: flex; align-items: center; gap: 8px; }
+.queue-info strong { color: var(--text); }
+.info-card { display: flex; gap: 10px; align-items: flex-start; }
+.info-card svg { color: var(--accent-2); flex-shrink: 0; margin-top: 2px; }
+.center-text { text-align: center; margin-top: 10px; }
+
+/* Modal de convite */
+.modal-wide { width: min(720px, 100%); }
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; text-align: left; }
+.modal-head h2 { font-size: 18px; }
+.modal-sub { text-align: left; margin-bottom: 12px; }
+.search-block { width: 100%; margin-bottom: 12px; }
+.invite-list { display: flex; flex-direction: column; gap: 4px; max-height: 360px; overflow-y: auto; text-align: left; }
+.invite-row { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--radius-sm); }
+.invite-row:hover { background: var(--surface-2); }
+.invite-row .btn { min-width: 112px; }
+
+/* Lobbies */
+.my-lobby { display: flex; flex-direction: column; gap: 12px; }
+.input {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.input:focus { border-color: var(--accent); }
+.input:disabled { opacity: 0.6; }
+.segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; gap: 4px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
+.segmented button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; border: 0; border-radius: 7px; background: none; color: var(--muted); font-weight: 600; cursor: pointer; }
+.segmented button.active { background: var(--accent); color: #fff; }
+.segmented button:disabled { cursor: not-allowed; }
+.lobby-open-msg { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent-2); font-weight: 600; font-size: 13px; }
+
+.toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.toolbar > h2, .toolbar > div:first-child { margin-right: auto; }
+.toolbar .search { width: 220px; }
+.check { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+.lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+.lobby-card { display: flex; flex-direction: column; gap: 14px; transition: border-color 0.2s, transform 0.15s; }
+.lobby-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.lobby-card.is-pending { border-color: var(--accent); box-shadow: 0 0 30px rgba(139, 92, 246, 0.18); }
+.lobby-card.is-accepted { border-color: var(--win); }
+.lobby-card.is-declined { border-color: rgba(239, 68, 68, 0.5); }
+.lobby-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.lobby-head h3 { font-size: 15px; }
+.lobby-players { display: flex; align-items: center; justify-content: space-between; padding-top: 22px; }
+.avatar-stack > .leader-avatar { z-index: 1; }
+.avatar-stack { display: flex; }
+.avatar-stack > span { margin-left: -8px; border-radius: 50%; box-shadow: 0 0 0 2px var(--surface); display: inline-flex; }
+.avatar-stack > span:first-child { margin-left: 0; }
+.avatar-empty { width: 34px; height: 34px; border: 1px dashed var(--border-strong); background: var(--surface-2); }
+.lobby-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.lobby-meta > div { display: flex; flex-direction: column; gap: 4px; }
+.status-chip.playing { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 40px; }
+
+.incoming {
+  position: sticky;
+  top: 76px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.25), var(--surface));
+  border: 1px solid var(--accent);
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.25);
+  animation: pop 0.3s ease-out;
+}
+.incoming-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+
+/* Servidores */
+.server-table td { vertical-align: middle; }
+.server-thumb { width: 92px; padding: 4px 8px; align-items: center; }
+.server-thumb .map-thumb-name { font-size: 10px; }
+.server-name { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.server-name strong { display: inline-flex; align-items: center; gap: 6px; }
+.players-bar { display: flex; flex-direction: column; gap: 4px; min-width: 90px; }
+.td-action { text-align: right; }
+.text-warn { color: #facc15; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .mode-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .party { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .incoming { flex-wrap: wrap; }
+}
+@media (max-width: 560px) {
+  .party { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .toolbar .search { width: 100%; display: flex; }
+}
