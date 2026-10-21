@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Crown, Server, Copy, Check, Send, Ban, Play } from 'lucide-react';
-import { MAPS, ME, genMatch } from '../data/mock';
+import { MAPS, ME } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Async, PageSkeleton } from '../components/Async';
 import { Avatar, LevelBadge, MapThumb } from '../components/ui';
 
 const TURN_TIME = 15;
@@ -46,8 +49,15 @@ export default function MatchRoom() {
   const { id } = useParams();
   const location = useLocation();
   // state vem da fila (partyA) ou do desafio de lobby (partyA + partyB)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const match = useMemo(() => genMatch(id, location.state ?? {}), [id]);
+  const q = useQuery(() => api.matches.room(id, location.state ?? {}), [id]);
+  return (
+    <Async query={q} skeleton={<PageSkeleton variant="cards" rows={3} />}>
+      {(match) => <MatchRoomView match={match} />}
+    </Async>
+  );
+}
+
+function MatchRoomView({ match }) {
   const [bans, setBans] = useState([]);
   const [turnLeft, setTurnLeft] = useState(TURN_TIME);
   const [serverReady, setServerReady] = useState(false);

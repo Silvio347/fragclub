@@ -1,99 +1,73 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
-import { usePersistentState } from '../hooks/usePersistentState';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { api, realtime } from '../services';
 
 const NotifCtx = createContext(null);
 const MIN = 60 * 1000;
 
-// Notificações iniciais (mock)
-function seed() {
-  const now = Date.now();
-  return [
-    {
-      id: 'n1',
-      type: 'team_invite',
-      title: 'Convite de time',
-      body: 'Os Brabos te convidou para entrar no time como Jogador.',
-      teamId: 'team-0',
-      createdAt: now - 4 * MIN,
-      read: false,
-    },
-    {
-      id: 'n2',
-      type: 'friend_request',
-      title: 'Pedido de amizade',
-      body: 'awpzera quer ser seu amigo.',
-      from: 'awpzera',
-      createdAt: now - 18 * MIN,
-      read: false,
-    },
-    {
-      id: 'n3',
-      type: 'challenge',
-      title: 'Desafio recebido',
-      body: 'Tryhard SP desafiou seu lobby ontem. Abra um lobby para receber novos desafios.',
-      link: '/jogar/lobbies',
-      createdAt: now - 70 * MIN,
-      read: false,
-    },
-    {
-      id: 'n4',
-      type: 'points',
-      title: '+120 FragPoints',
-      body: 'Vitória na Ancient. Seus pontos já estão na loja.',
-      link: '/loja',
-      createdAt: now - 3 * 60 * MIN,
-      read: true,
-    },
-    {
-      id: 'n5',
-      type: 'tournament',
-      title: 'Copa Noturna #142',
-      body: 'O campeonato começa hoje às 22h. Inscrições fecham às 21h30.',
-      link: '/campeonatos',
-      createdAt: now - 6 * 60 * MIN,
-      read: true,
-    },
-    {
-      id: 'n6',
-      type: 'system',
-      title: 'Temporada 4 começou',
-      body: 'Novos itens na loja e ranking zerado. Boa sorte!',
-      link: '/loja',
-      createdAt: now - 3 * 24 * 60 * MIN,
-      read: true,
-    },
-  ];
-}
-
 export function NotificationsProvider({ children }) {
-  const [items, setItems] = usePersistentState('fc_notifs', seed);
+  /** @type {[import('../types').AppNotification[], Function]} */
+  const [items, setItems] = useState([]);
+  const [ready, setReady] = useState(false);
 
-  const notify = useCallback(
-    (n) =>
-      setItems((list) =>
-        [
-          { id: `n${Date.now()}${Math.random().toString(36).slice(2, 6)}`, createdAt: Date.now(), read: false, ...n },
-          ...list,
-        ].slice(0, 40),
-      ),
-    [setItems],
-  );
+  useEffect(() => {
+    let alive = true;
+    api.notifications.list().then((list) => {
+      if (!alive) return;
+      setItems(list);
+      setReady(true);
+    });
+    // Notificações novas chegam "do servidor" (outros serviços)
+    const off = realtime.on('notifications:changed', (list) => setItems(list));
+    return () => {
+      alive = false;
+      off();
+    };
+  }, []);
+
+  // Atualização otimista: a UI reage na hora, o serviço confirma depois
+  const optimistic = useCallback((fn, call) => {
+    setItems(fn);
+    return call().then(setItems);
+  }, []);
+
+  const notify = useCallback((n) => api.notifications.create(n).then(setItems), []);
   const markRead = useCallback(
-    (id) => setItems((list) => list.map((n) => (n.id === id ? { ...n, read: true } : n))),
-    [setItems],
+    (id) =>
+      optimistic(
+        (l) => l.map((n) => (n.id === id ? { ...n, read: true } : n)),
+        () => api.notifications.markRead(id),
+      ),
+    [optimistic],
   );
-  const markAllRead = useCallback(() => setItems((list) => list.map((n) => ({ ...n, read: true }))), [setItems]);
-  const remove = useCallback((id) => setItems((list) => list.filter((n) => n.id !== id)), [setItems]);
-  const clearRead = useCallback(() => setItems((list) => list.filter((n) => !n.read)), [setItems]);
-  // Marca convites/pedidos como respondidos
+  const markAllRead = useCallback(
+    () => optimistic((l) => l.map((n) => ({ ...n, read: true })), api.notifications.markAllRead),
+    [optimistic],
+  );
+  const remove = useCallback(
+    (id) =>
+      optimistic(
+        (l) => l.filter((n) => n.id !== id),
+        () => api.notifications.remove(id),
+      ),
+    [optimistic],
+  );
+  const clearRead = useCallback(
+    () => optimistic((l) => l.filter((n) => !n.read), api.notifications.clearRead),
+    [optimistic],
+  );
   const resolve = useCallback(
-    (id, status) => setItems((list) => list.map((n) => (n.id === id ? { ...n, read: true, resolved: status } : n))),
-    [setItems],
+    (id, status) =>
+      optimistic(
+        (l) => l.map((n) => (n.id === id ? { ...n, read: true, resolved: status } : n)),
+        () => api.notifications.resolve(id, status),
+      ),
+    [optimistic],
   );
 
   const value = useMemo(
     () => ({
       items,
+      ready,
       unread: items.filter((n) => !n.read).length,
       notify,
       markRead,
@@ -102,7 +76,7 @@ export function NotificationsProvider({ children }) {
       clearRead,
       resolve,
     }),
-    [items, notify, markRead, markAllRead, remove, clearRead, resolve],
+    [items, ready, notify, markRead, markAllRead, remove, clearRead, resolve],
   );
 
   return <NotifCtx.Provider value={value}>{children}</NotifCtx.Provider>;

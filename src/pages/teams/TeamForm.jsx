@@ -32,15 +32,21 @@ export default function TeamForm({ initial = EMPTY_TEAM, submitLabel, onSubmit, 
     setT({ ...t, [k]: k === 'tag' ? v.toUpperCase().replace(/[^A-Z0-9]/g, '') : k === 'minLevel' ? Number(v) : v });
   };
 
-  const submit = (ev) => {
+  const [sending, setSending] = useState(false);
+
+  // onSubmit pode ser assíncrono (serviço); erros do servidor aparecem no formulário
+  const submit = async (ev) => {
     ev.preventDefault();
     const e = validateTeam(t);
     setErrors(e);
     if (Object.keys(e).length) return;
+    setSending(true);
     try {
-      onSubmit({ ...t, name: t.name.trim() });
+      await onSubmit({ ...t, name: t.name.trim() });
     } catch (err) {
       setErrors({ form: err.message });
+    } finally {
+      setSending(false);
     }
   };
 
@@ -165,7 +171,7 @@ export default function TeamForm({ initial = EMPTY_TEAM, submitLabel, onSubmit, 
             Cancelar
           </button>
         )}
-        <button type="submit" className="btn btn-primary" disabled={busy}>
+        <button type="submit" className="btn btn-primary" disabled={busy || sending}>
           {submitLabel}
         </button>
       </div>

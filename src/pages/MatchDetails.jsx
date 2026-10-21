@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Clock,
@@ -15,7 +15,10 @@ import {
   Flame,
   Target,
 } from 'lucide-react';
-import { getMatchDetails, ME } from '../data/mock';
+import { ME } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Async, PageSkeleton } from '../components/Async';
 import { ratingClass } from '../utils/levels';
 import { Avatar, LevelBadge } from '../components/ui';
 
@@ -211,11 +214,17 @@ function when(daysAgo) {
 
 export default function MatchDetails() {
   const { matchId } = useParams();
-  const match = useMemo(() => getMatchDetails(matchId), [matchId]);
+  const q = useQuery(() => api.matches.details(matchId), [matchId]);
+  return (
+    <Async query={q} skeleton={<PageSkeleton variant="profile" rows={10} />}>
+      {(match) => <MatchDetailsView match={match} />}
+    </Async>
+  );
+}
+
+function MatchDetailsView({ match }) {
   const [tab, setTab] = useState('placar');
   const [sort, setSort] = useState({ key: 'rating', dir: 'desc' });
-
-  if (!match) return <Navigate to="/inicio" replace />;
 
   const all = [...match.teamA.players, ...match.teamB.players];
   const top = (fn) => all.reduce((best, p) => (fn(p) > fn(best) ? p : best), all[0]);

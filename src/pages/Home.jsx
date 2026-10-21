@@ -1,15 +1,35 @@
 import { Link } from 'react-router-dom';
 import { Crosshair, Star, Activity, Flame, Swords, ChevronRight, Calendar, Users } from 'lucide-react';
-import { ME, FRIENDS, MISSIONS, TOURNAMENTS, getMatchHistory } from '../data/mock';
+import { ME } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Async, PageSkeleton } from '../components/Async';
 import { levelProgress, ratingClass } from '../utils/levels';
 import { Avatar, LevelBadge, Progress, StatCard } from '../components/ui';
 import MatchList from '../components/MatchList';
 
+// Painel inicial: busca em paralelo tudo o que a página mostra
+const loadHome = () =>
+  Promise.all([
+    api.players.history(ME.nick, 6),
+    api.friends.list(),
+    api.players.missions(),
+    api.tournaments.list(),
+  ]).then(([h, friends, missions, tournaments]) => ({ history: h.matches, friends, missions, tournaments }));
+
 export default function Home() {
-  const history = getMatchHistory(ME.nick, 6);
+  const query = useQuery(loadHome, []);
+  return (
+    <Async query={query} skeleton={<PageSkeleton rows={7} />}>
+      {(data) => <HomeView {...data} />}
+    </Async>
+  );
+}
+
+function HomeView({ history, friends, missions, tournaments }) {
   const prog = levelProgress(ME.elo);
-  const nextTournament = TOURNAMENTS.find((t) => t.status === 'open');
-  const onlineFriends = FRIENDS.filter((f) => f.status !== 'offline');
+  const nextTournament = tournaments.find((t) => t.status === 'open');
+  const onlineFriends = friends.filter((f) => f.status !== 'offline');
 
   return (
     <div className="page grid-main-side">
@@ -76,7 +96,7 @@ export default function Home() {
             <span className="muted small">{onlineFriends.length} online</span>
           </header>
           <ul className="friend-list">
-            {FRIENDS.map((f) => (
+            {friends.map((f) => (
               <li key={f.nick}>
                 <Link to={`/perfil/${f.nick}`} className="friend">
                   <Avatar nick={f.nick} size={34} status={f.status} />
@@ -97,7 +117,7 @@ export default function Home() {
             <span className="muted small">Renova em 6h</span>
           </header>
           <ul className="mission-list">
-            {MISSIONS.map((m) => (
+            {missions.map((m) => (
               <li key={m.id}>
                 <div className="row between">
                   <span>{m.title}</span>

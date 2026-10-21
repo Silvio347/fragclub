@@ -22,6 +22,8 @@ import { useQueue } from '../context/QueueContext';
 import { useAuth } from '../context/AuthContext';
 import { useParty } from '../context/PartyContext';
 import { useShop } from '../context/ShopContext';
+import { useTeams } from '../context/TeamsContext';
+import { useNotifications } from '../context/NotificationsContext';
 import { formatTime } from '../utils/random';
 import { Avatar, LevelBadge, Nick } from './ui';
 import MatchFoundModal from './MatchFoundModal';
@@ -142,6 +144,11 @@ function Topbar() {
 }
 
 export default function Layout() {
+  // Dados da sessão (loja, times, notificações) carregados antes de abrir as páginas
+  const shop = useShop();
+  const teams = useTeams();
+  const notifs = useNotifications();
+  const booted = shop.ready && teams.ready && notifs.ready;
   return (
     <div className="app">
       <Sidebar />
@@ -149,9 +156,13 @@ export default function Layout() {
         <Topbar />
         <main className="content">
           {/* Suspense aqui mantém sidebar/topo visíveis enquanto a página carrega */}
-          <Suspense fallback={<PageLoader />}>
-            <Outlet />
-          </Suspense>
+          {booted ? (
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
+          ) : (
+            <PageLoader />
+          )}
         </main>
       </div>
       <MatchFoundModal />

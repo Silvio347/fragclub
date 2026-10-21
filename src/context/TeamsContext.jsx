@@ -1,171 +1,67 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { usePersistentState } from '../hooks/usePersistentState';
-import { PUBLIC_TEAMS, TEAM_MAX } from '../data/teams';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { api, realtime } from '../services';
+import { MY_TEAMS_LIMIT } from '../services/teams';
 import { ME, getPlayer } from '../data/mock';
-import { useNotifications } from './NotificationsContext';
 
 const TeamsCtx = createContext(null);
-export const MY_TEAMS_LIMIT = 3;
+export { MY_TEAMS_LIMIT };
 
 // Membros com `me: true` representam o usuário logado (sobrevive à troca de nick)
 export const memberNick = (m) => (m.me ? ME.nick : m.nick);
 export const resolveMember = (m) => getPlayer(memberNick(m));
 
-const INITIAL = { mine: [], joined: [], requests: [] };
+/** @type {import('../types').TeamsState} */
+const EMPTY = { myTeams: [], publicTeams: [], requests: [] };
 
 export function TeamsProvider({ children }) {
-  const [state, setState] = usePersistentState('fc_teams', INITIAL);
-  const { notify } = useNotifications();
-  const timers = useRef([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
-  const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
+  const [state, setState] = useState(EMPTY);
+  const [ready, setReady] = useState(false);
 
-  // Times públicos onde eu entrei viram cópias editáveis com "me" no elenco
-  const allTeams = useMemo(() => {
-    const joined = new Set(state.joined.map((t) => t.id));
-    return [...state.mine, ...state.joined, ...PUBLIC_TEAMS.filter((t) => !joined.has(t.id))];
-  }, [state]);
+  useEffect(() => {
+    let alive = true;
+    api.teams.state().then((s) => {
+      if (!alive) return;
+      setState(s);
+      setReady(true);
+    });
+    // Pedidos aceitos e convites respondidos chegam como eventos do servidor
+    const off = realtime.on('teams:changed', setState);
+    return () => {
+      alive = false;
+      off();
+    };
+  }, []);
 
-  const myTeams = useMemo(() => [...state.mine, ...state.joined], [state]);
+  const run = useCallback((call) => call().then((s) => (setState(s), s)), []);
+
+  const allTeams = useMemo(() => [...state.myTeams, ...state.publicTeams], [state]);
   const getTeam = useCallback((id) => allTeams.find((t) => t.id === id) ?? null, [allTeams]);
   const isMember = useCallback((team) => team.members.some((m) => m.me), []);
   const myRole = useCallback((team) => team.members.find((m) => m.me)?.role ?? null, []);
 
-  const update = useCallback(
-    (id, fn) =>
-      setState((s) => ({
-        ...s,
-        mine: s.mine.map((t) => (t.id === id ? fn(t) : t)),
-        joined: s.joined.map((t) => (t.id === id ? fn(t) : t)),
-      })),
-    [setState],
-  );
-
+  /** @returns {Promise<string>} id do time criado */
   const createTeam = useCallback(
-    (data) => {
-      if (myTeams.length >= MY_TEAMS_LIMIT) throw new Error(`Você pode participar de até ${MY_TEAMS_LIMIT} times.`);
-      const team = {
-        id: `my-${Date.now().toString(36)}`,
-        ...data,
-        founded: new Date().getFullYear(),
-        wins: 0,
-        losses: 0,
-        trophies: 0,
-        matches: [],
-        members: [{ me: true, role: 'Capitão' }],
-        invites: [],
-      };
-      setState((s) => ({ ...s, mine: [team, ...s.mine] }));
-      return team.id;
-    },
-    [myTeams.length, setState],
+    (data) =>
+      api.teams.create(data).then(({ state: s, id }) => {
+        setState(s);
+        return id;
+      }),
+    [],
   );
-
-  const joinPublicTeam = useCallback(
-    (teamId, role = 'Jogador') => {
-      const base = PUBLIC_TEAMS.find((t) => t.id === teamId);
-      if (!base || state.joined.some((t) => t.id === teamId)) return;
-      if (myTeams.length >= MY_TEAMS_LIMIT) throw new Error(`Você pode participar de até ${MY_TEAMS_LIMIT} times.`);
-      setState((s) => ({
-        ...s,
-        requests: s.requests.filter((r) => r !== teamId),
-        joined: [{ ...base, members: [...base.members, { me: true, role }], invites: [] }, ...s.joined],
-      }));
-    },
-    [state.joined, myTeams.length, setState],
-  );
-
-  // Pedido para entrar: o capitão (mock) aceita depois de alguns segundos
-  const requestJoin = useCallback(
-    (teamId) => {
-      if (state.requests.includes(teamId)) return;
-      setState((s) => ({ ...s, requests: [...s.requests, teamId] }));
-      const team = PUBLIC_TEAMS.find((t) => t.id === teamId);
-      later(() => {
-        try {
-          joinPublicTeam(teamId);
-          notify({
-            type: 'team',
-            title: 'Solicitação aceita',
-            body: `Você agora faz parte do ${team.name}.`,
-            link: `/times/${teamId}`,
-          });
-        } catch (e) {
-          notify({ type: 'team', title: 'Não foi possível entrar', body: e.message, link: '/times' });
-        }
-      }, 3500);
-    },
-
-    [state.requests, setState, joinPublicTeam, notify],
-  );
-
-  const cancelRequest = useCallback(
-    (teamId) => setState((s) => ({ ...s, requests: s.requests.filter((r) => r !== teamId) })),
-    [setState],
-  );
-
-  // Convite para amigo: aceita automaticamente (mock)
-  const inviteToTeam = useCallback(
-    (teamId, friend) => {
-      const team = getTeam(teamId);
-      if (!team || team.members.length + (team.invites?.length ?? 0) >= TEAM_MAX) return;
-      update(teamId, (t) => ({ ...t, invites: [...(t.invites ?? []), friend.nick] }));
-      later(
-        () => {
-          update(teamId, (t) => ({
-            ...t,
-            invites: (t.invites ?? []).filter((n) => n !== friend.nick),
-            members: t.members.length < TEAM_MAX ? [...t.members, { nick: friend.nick, role: 'Jogador' }] : t.members,
-          }));
-          notify({
-            type: 'team',
-            title: 'Novo membro',
-            body: `${friend.nick} aceitou o convite e entrou no ${team.name}.`,
-            link: `/times/${teamId}`,
-          });
-        },
-        1800 + Math.random() * 1500,
-      );
-    },
-
-    [getTeam, update, notify],
-  );
-
-  const setRole = useCallback(
-    (teamId, nick, role) =>
-      update(teamId, (t) => ({
-        ...t,
-        members: t.members.map((m) => {
-          // Passar a capitania: o capitão atual vira Jogador
-          if (role === 'Capitão' && m.role === 'Capitão') return { ...m, role: 'Jogador' };
-          return memberNick(m) === nick ? { ...m, role } : m;
-        }),
-      })),
-    [update],
-  );
-
-  const removeMember = useCallback(
-    (teamId, nick) => update(teamId, (t) => ({ ...t, members: t.members.filter((m) => memberNick(m) !== nick) })),
-    [update],
-  );
-
-  const editTeam = useCallback((teamId, data) => update(teamId, (t) => ({ ...t, ...data })), [update]);
-
-  const leaveTeam = useCallback(
-    (teamId) =>
-      setState((s) => ({
-        ...s,
-        mine: s.mine.filter((t) => t.id !== teamId),
-        joined: s.joined.filter((t) => t.id !== teamId),
-      })),
-    [setState],
-  );
+  const joinPublicTeam = useCallback((teamId) => run(() => api.teams.join(teamId)), [run]);
+  const requestJoin = useCallback((teamId) => run(() => api.teams.requestJoin(teamId)), [run]);
+  const cancelRequest = useCallback((teamId) => run(() => api.teams.cancelRequest(teamId)), [run]);
+  const inviteToTeam = useCallback((teamId, friend) => run(() => api.teams.invite(teamId, friend.nick)), [run]);
+  const setRole = useCallback((teamId, nick, role) => run(() => api.teams.setRole(teamId, nick, role)), [run]);
+  const removeMember = useCallback((teamId, nick) => run(() => api.teams.removeMember(teamId, nick)), [run]);
+  const editTeam = useCallback((teamId, data) => run(() => api.teams.update(teamId, data)), [run]);
+  const leaveTeam = useCallback((teamId) => run(() => api.teams.leave(teamId)), [run]);
 
   const value = useMemo(
     () => ({
-      myTeams,
+      ...state,
+      ready,
       allTeams,
-      requests: state.requests,
       getTeam,
       isMember,
       myRole,
@@ -181,9 +77,9 @@ export function TeamsProvider({ children }) {
       disbandTeam: leaveTeam,
     }),
     [
-      myTeams,
+      state,
+      ready,
       allTeams,
-      state.requests,
       getTeam,
       isMember,
       myRole,

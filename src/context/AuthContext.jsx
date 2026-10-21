@@ -1,10 +1,8 @@
-import { createContext, useCallback, useContext, useState } from 'react';
-import { ME, NICKS } from '../data/mock';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { ME } from '../data/mock';
+import { api } from '../services';
 
-const STORAGE_KEY = 'fc_session';
 const AuthCtx = createContext(null);
-
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export const DEFAULT_PROFILE = {
   bio: '',
@@ -19,7 +17,7 @@ export const DEFAULT_PROFILE = {
 
 // Mock: dados da sessão são aplicados no perfil "ME" para o resto do app refletir
 function applySession(session) {
-  if (!session) return;
+  if (!session) return session;
   if (session.nick) ME.nick = session.nick;
   ME.premium = !!session.premium;
   ME.profile = {
@@ -28,101 +26,60 @@ function applySession(session) {
     socials: { ...DEFAULT_PROFILE.socials, ...session.profile?.socials },
   };
   ME.country = ME.profile.country;
-}
-
-function readSession() {
-  try {
-    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    applySession(s);
-    return s;
-  } catch {
-    return null;
-  }
+  return session;
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(readSession);
+  const [user, setUser] = useState(() => applySession(api.auth.storedSession()));
 
-  const persist = (session) => {
-    applySession(session);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-    setUser(session);
-  };
-
-  // Aceita qualquer e-mail/senha válidos (front-only)
-  const login = useCallback(async ({ email, password }) => {
-    await wait(700);
-    if (!email.includes('@') || password.length < 6) throw new Error('E-mail ou senha inválidos.');
-    persist({ nick: ME.nick, email });
+  // Toda ação devolve a sessão atualizada pelo serviço
+  const apply = useCallback((session) => {
+    setUser(applySession(session));
+    return session;
   }, []);
 
-  const loginWithSteam = useCallback(async () => {
-    await wait(900);
-    persist({ nick: ME.nick, email: 'steam@fragclub.gg' });
-  }, []);
-
-  const register = useCallback(async ({ nick, email }) => {
-    await wait(900);
-    if (NICKS.includes(nick.toLowerCase())) throw new Error('Esse nick já está em uso.');
-    persist({ nick, email });
-  }, []);
-
+  const login = useCallback((creds) => api.auth.login(creds).then(apply), [apply]);
+  const loginWithSteam = useCallback(() => api.auth.loginWithSteam().then(apply), [apply]);
+  const register = useCallback((data) => api.auth.register(data).then(apply), [apply]);
   const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
     setUser(null);
+    return api.auth.logout();
   }, []);
-
-  // Assinatura mock: nenhum pagamento real é processado
-  const subscribe = useCallback(
-    async (planId) => {
-      await wait(1400);
-      persist({ ...user, premium: { plan: planId, since: new Date().toISOString() } });
-    },
-    [user],
-  );
-
-  const cancelSubscription = useCallback(() => {
-    persist({ ...user, premium: null });
-  }, [user]);
-
-  // Premium comprado com FragPoints
-  const grantPremiumDays = useCallback(
-    (days) => {
-      persist({ ...user, premium: { plan: `pontos-${days}d`, since: new Date().toISOString() } });
-    },
-    [user],
-  );
-
-  const updateProfile = useCallback(
-    async ({ nick, ...profile }) => {
-      await wait(500);
-      if (nick && nick !== user.nick && NICKS.includes(nick.toLowerCase()))
-        throw new Error('Esse nick já está em uso.');
-      persist({ ...user, nick: nick || user.nick, profile: { ...user.profile, ...profile } });
-    },
-    [user],
-  );
+  const subscribe = useCallback((planId) => api.auth.subscribe(planId).then(apply), [apply]);
+  const cancelSubscription = useCallback(() => api.auth.cancelSubscription().then(apply), [apply]);
+  const grantPremiumDays = useCallback((days) => api.auth.grantPremiumDays(days).then(apply), [apply]);
+  const updateProfile = useCallback((data) => api.auth.updateProfile(data).then(apply), [apply]);
 
   const profile = user ? (ME.profile ?? DEFAULT_PROFILE) : DEFAULT_PROFILE;
 
-  return (
-    <AuthCtx.Provider
-      value={{
-        user,
-        profile,
-        login,
-        loginWithSteam,
-        register,
-        logout,
-        subscribe,
-        cancelSubscription,
-        grantPremiumDays,
-        updateProfile,
-      }}
-    >
-      {children}
-    </AuthCtx.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      profile,
+      login,
+      loginWithSteam,
+      register,
+      logout,
+      subscribe,
+      cancelSubscription,
+      grantPremiumDays,
+      updateProfile,
+    }),
+    [
+      user,
+      profile,
+      login,
+      loginWithSteam,
+      register,
+      logout,
+      subscribe,
+      cancelSubscription,
+      grantPremiumDays,
+      updateProfile,
+    ],
   );
+
+  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
 
 export function useAuthOptional() {

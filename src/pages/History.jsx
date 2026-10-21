@@ -1,7 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { MAPS, getMatchHistory, getPlayer } from '../data/mock';
+import { MAPS } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Async, PageSkeleton } from '../components/Async';
 import { ratingClass } from '../utils/levels';
 import { Avatar, LevelBadge } from '../components/ui';
 import MatchList from '../components/MatchList';
@@ -11,8 +14,15 @@ const PAGE = 15;
 
 export default function History() {
   const { nick } = useParams();
-  const player = useMemo(() => getPlayer(nick), [nick]);
-  const all = useMemo(() => getMatchHistory(player.nick, TOTAL), [player]);
+  const q = useQuery(() => api.players.history(nick, TOTAL), [nick]);
+  return (
+    <Async query={q} skeleton={<PageSkeleton rows={10} />}>
+      {(data) => <HistoryView player={data.player} all={data.matches} />}
+    </Async>
+  );
+}
+
+function HistoryView({ player, all }) {
   const [map, setMap] = useState('all');
   const [result, setResult] = useState('all');
   const [shown, setShown] = useState(PAGE);

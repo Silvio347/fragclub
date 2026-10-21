@@ -1,6 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Search, RefreshCw, Copy, Check, Play, Crown, Signal } from 'lucide-react';
-import { ALL_MAPS, REGIONS, SERVER_VARIANTS, genServers } from '../../data/mock';
+import { ALL_MAPS, REGIONS, SERVER_VARIANTS } from '../../data/mock';
+import { api } from '../../services';
+import { useQuery } from '../../hooks/useQuery';
+import { Skeleton } from '../../components/Async';
 import { MapThumb, Modal } from '../../components/ui';
 
 const SORTS = {
@@ -51,16 +54,9 @@ function ConnectModal({ server, onClose }) {
 
 export default function ServerBrowser({ type }) {
   const [seed, setSeed] = useState(0);
-  const base = useMemo(() => genServers(type), [type]);
-  // "Atualizar" varia a lotação para simular o refresh
-  const servers = useMemo(
-    () =>
-      base.map((s, i) => ({
-        ...s,
-        players: seed ? Math.max(0, Math.min(s.max, s.players + (((i * 7 + seed * 3) % 5) - 2))) : s.players,
-      })),
-    [base, seed],
-  );
+  // "Atualizar" pede a lista de novo (a lotação muda a cada refresh)
+  const serversQ = useQuery(() => api.play.servers(type, seed), [type, seed]);
+  const servers = serversQ.data ?? [];
   const [f, setF] = useState({
     q: '',
     map: 'all',
@@ -210,7 +206,15 @@ export default function ServerBrowser({ type }) {
                 </tr>
               );
             })}
-            {list.length === 0 && (
+            {!serversQ.data &&
+              Array.from({ length: 6 }, (_, i) => (
+                <tr key={`sk-${i}`}>
+                  <td colSpan={6}>
+                    <Skeleton h={40} />
+                  </td>
+                </tr>
+              ))}
+            {serversQ.data && list.length === 0 && (
               <tr>
                 <td colSpan={6} className="muted empty">
                   Nenhum servidor com esses filtros.

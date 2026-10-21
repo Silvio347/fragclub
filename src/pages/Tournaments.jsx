@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Calendar, Users, Trophy, Lock } from 'lucide-react';
-import { TOURNAMENTS, ME } from '../data/mock';
+import { ME } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Async, PageSkeleton } from '../components/Async';
 import { Progress } from '../components/ui';
 
 const FILTERS = [
@@ -13,9 +16,18 @@ const FILTERS = [
 const STATUS_LABEL = { open: 'Inscrições abertas', live: 'Ao vivo', finished: 'Finalizado' };
 
 export default function Tournaments() {
+  const q = useQuery(() => api.tournaments.list(), []);
+  return (
+    <Async query={q} skeleton={<PageSkeleton variant="cards" />}>
+      {(list) => <TournamentsView tournaments={list} />}
+    </Async>
+  );
+}
+
+function TournamentsView({ tournaments }) {
   const [filter, setFilter] = useState('all');
   const [joined, setJoined] = useState([]);
-  const list = filter === 'all' ? TOURNAMENTS : TOURNAMENTS.filter((t) => t.status === filter);
+  const list = filter === 'all' ? tournaments : tournaments.filter((t) => t.status === filter);
 
   return (
     <div className="page stack">

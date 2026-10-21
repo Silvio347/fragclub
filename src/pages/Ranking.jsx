@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import { RANKING, ME, FLAGS } from '../data/mock';
+import { ME, FLAGS } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Async, PageSkeleton } from '../components/Async';
 import { Avatar, LevelBadge } from '../components/ui';
 import { ratingClass } from '../utils/levels';
 
@@ -12,17 +15,26 @@ const TABS = [
 ];
 
 export default function Ranking() {
+  const q = useQuery(() => api.players.ranking(), []);
+  return (
+    <Async query={q} skeleton={<PageSkeleton rows={10} />}>
+      {(ranking) => <RankingView ranking={ranking} />}
+    </Async>
+  );
+}
+
+function RankingView({ ranking }) {
   const [tab, setTab] = useState('global');
   const [query, setQuery] = useState('');
 
   const rows = useMemo(() => {
-    let list = RANKING;
+    let list = ranking;
     if (tab === 'br') list = list.filter((p) => p.country === 'BR');
     if (tab === 'weekly') list = [...list].sort((a, b) => b.weeklyGain - a.weeklyGain);
     const ranked = list.map((p, i) => ({ ...p, pos: i + 1 }));
     const q = query.trim().toLowerCase();
     return q ? ranked.filter((p) => p.nick.toLowerCase().includes(q)) : ranked;
-  }, [tab, query]);
+  }, [ranking, tab, query]);
 
   const podium = rows.slice(0, 3);
 

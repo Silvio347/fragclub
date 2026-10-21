@@ -43,16 +43,16 @@ export default function NotificationsMenu() {
     }
   };
 
-  const respond = (n, accepted) => {
+  const respond = async (n, accepted) => {
     if (n.type === 'team_invite' && accepted) {
       try {
-        joinPublicTeam(n.teamId);
-        resolve(n.id, 'accepted');
+        await joinPublicTeam(n.teamId);
+        await resolve(n.id, 'accepted');
         setOpen(false);
         navigate(`/times/${n.teamId}`);
       } catch (e) {
+        await resolve(n.id, 'declined');
         notify({ type: 'system', title: 'Não foi possível entrar no time', body: e.message, link: '/times' });
-        resolve(n.id, 'declined');
       }
       return;
     }

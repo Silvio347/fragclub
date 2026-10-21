@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, RefreshCw, Swords, Lock, Globe, Check, X, Bell, Crown } from 'lucide-react';
-import { ME, REGIONS, genLobbies } from '../../data/mock';
+import { ME, REGIONS } from '../../data/mock';
+import { api } from '../../services';
+import { useQuery } from '../../hooks/useQuery';
+import { Skeleton } from '../../components/Async';
 import { useParty, PARTY_MAX } from '../../context/PartyContext';
 import { useQueue } from '../../context/QueueContext';
 import { Avatar, LevelBadge } from '../../components/ui';
 import PartyPanel from '../../components/PartyPanel';
 
+const NO_LOBBIES = []; // referência estável enquanto a lista carrega
 const newMatchId = () => Math.random().toString(36).slice(2, 10);
 
 function LobbyCard({ lobby, challenge, onChallenge, disabled }) {
@@ -94,7 +98,8 @@ export default function Lobbies() {
   const { party, pending } = useParty();
   const { status: queueStatus } = useQueue();
   const [seed, setSeed] = useState(0);
-  const lobbies = useMemo(() => genLobbies(`lobbies-${seed}`), [seed]);
+  const lobbiesQ = useQuery(() => api.play.lobbies(seed), [seed]);
+  const lobbies = lobbiesQ.data ?? NO_LOBBIES;
   const [open, setOpen] = useState(false);
   const [lobbyName, setLobbyName] = useState(`Lobby do ${ME.nick}`);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -292,7 +297,8 @@ export default function Lobbies() {
           {list.map((l) => (
             <LobbyCard key={l.id} lobby={l} challenge={challenge} onChallenge={sendChallenge} disabled={busy} />
           ))}
-          {list.length === 0 && <p className="muted empty-state">Nenhum lobby com esses filtros.</p>}
+          {!lobbiesQ.data && Array.from({ length: 6 }, (_, i) => <Skeleton key={i} h={230} r={12} />)}
+          {lobbiesQ.data && list.length === 0 && <p className="muted empty-state">Nenhum lobby com esses filtros.</p>}
         </div>
       </section>
     </div>

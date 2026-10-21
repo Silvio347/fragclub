@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { FRIENDS } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Skeleton } from './Async';
 import { useParty, PARTY_MAX } from '../context/PartyContext';
 import { Avatar, LevelBadge, Modal } from './ui';
 
@@ -10,9 +12,10 @@ export default function InviteModal({ onClose }) {
   const { members, pending, total, isFull, invite } = useParty();
   const [q, setQ] = useState('');
 
-  const list = FRIENDS.filter((f) => f.nick.toLowerCase().includes(q.trim().toLowerCase())).sort(
-    (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status],
-  );
+  const friendsQ = useQuery(() => api.friends.list(), []);
+  const list = (friendsQ.data ?? [])
+    .filter((f) => f.nick.toLowerCase().includes(q.trim().toLowerCase()))
+    .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
 
   return (
     <Modal title="Convidar amigos" onClose={onClose}>
@@ -29,6 +32,7 @@ export default function InviteModal({ onClose }) {
           aria-label="Buscar amigo"
         />
       </label>
+      {friendsQ.loading && <Skeleton h={180} />}
       <ul className="invite-list">
         {list.map((f) => {
           const inParty = members.some((m) => m.nick === f.nick);

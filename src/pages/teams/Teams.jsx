@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Search, Users, Trophy, Shield } from 'lucide-react';
 import { ME, REGIONS } from '../../data/mock';
-import { PUBLIC_TEAMS, TEAM_MAX, teamStats } from '../../data/teams';
+import { TEAM_MAX, teamStats } from '../../data/teams';
 import { useTeams, resolveMember, MY_TEAMS_LIMIT } from '../../context/TeamsContext';
 import { Modal, TeamLogo } from '../../components/ui';
 import TeamForm from './TeamForm';
@@ -39,25 +39,23 @@ function TeamCard({ team, role, requested }) {
 
 export default function Teams() {
   const navigate = useNavigate();
-  const { myTeams, requests, myRole, createTeam } = useTeams();
+  const { myTeams, publicTeams, requests, myRole, createTeam } = useTeams();
   const [creating, setCreating] = useState(false);
   const [q, setQ] = useState('');
   const [region, setRegion] = useState('all');
   const [onlyRecruiting, setOnlyRecruiting] = useState(false);
 
-  const myIds = new Set(myTeams.map((t) => t.id));
   const explore = useMemo(
     () =>
-      PUBLIC_TEAMS.filter((t) => !myIds.has(t.id))
+      publicTeams
         .filter((t) => !q || `${t.name} ${t.tag}`.toLowerCase().includes(q.toLowerCase()))
         .filter((t) => region === 'all' || t.region === region)
         .filter((t) => !onlyRecruiting || t.recruiting),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [q, region, onlyRecruiting, myTeams],
+    [publicTeams, q, region, onlyRecruiting],
   );
 
-  const create = (data) => {
-    const id = createTeam(data);
+  const create = async (data) => {
+    const id = await createTeam(data);
     setCreating(false);
     navigate(`/times/${id}`);
   };

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   Star,
@@ -19,8 +19,10 @@ import {
   Instagram,
   Youtube,
 } from 'lucide-react';
-import { getPlayer, getMatchHistory, getEloHistory, getMapStats, ME, FLAGS, MAPS_BY_ID } from '../data/mock';
-import { PUBLIC_TEAMS } from '../data/teams';
+import { ME, FLAGS, MAPS_BY_ID } from '../data/mock';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { Async, PageSkeleton } from '../components/Async';
 import { useAuth } from '../context/AuthContext';
 import { useTeams } from '../context/TeamsContext';
 import { levelProgress, ratingClass } from '../utils/levels';
@@ -171,10 +173,16 @@ const fmtSigned = (n, suffix = '') => `${n > 0 ? '+' : ''}${n}${suffix}`;
 
 export default function Profile() {
   const { nick } = useParams();
-  const player = useMemo(() => getPlayer(nick), [nick]);
-  const history = useMemo(() => getMatchHistory(player.nick, 12), [player]);
-  const eloPoints = useMemo(() => getEloHistory(player, 20), [player]);
-  const mapStats = useMemo(() => getMapStats(player.nick), [player]);
+  const query = useQuery(() => api.players.profile(nick), [nick]);
+  return (
+    <Async query={query} skeleton={<PageSkeleton variant="profile" />}>
+      {(data) => <ProfileView data={data} />}
+    </Async>
+  );
+}
+
+function ProfileView({ data }) {
+  const { player, history, elo: eloPoints, maps: mapStats, teams: otherTeams } = data;
   const prog = levelProgress(player.elo);
   const isMe = player.nick === ME.nick;
   const { user, profile } = useAuth();
@@ -204,7 +212,7 @@ export default function Profile() {
       }
     : { className: `profile-banner ${banner.startsWith('banner-') ? banner : ''}` };
   const socials = p ? SOCIALS.filter((s) => p.socials[s.key]) : [];
-  const playerTeams = isMe ? myTeams : PUBLIC_TEAMS.filter((t) => t.members.some((m) => m.nick === player.nick));
+  const playerTeams = isMe ? myTeams : otherTeams;
 
   const copyCrosshair = async () => {
     try {

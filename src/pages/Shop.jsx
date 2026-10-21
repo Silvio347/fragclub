@@ -1,17 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Coins, Gift, Search, Crown, Check, Lock, Package, Sparkles, Truck, Loader2 } from 'lucide-react';
-import {
-  SKINS,
-  COSMETICS,
-  PREMIUM_ITEMS,
-  RARITIES,
-  WEAR,
-  WEAPON_TYPES,
-  EARN_RULES,
-  SEASON,
-  ITEMS_BY_ID,
-} from '../data/catalog';
+import { RARITIES, WEAR, WEAPON_TYPES, EARN_RULES, SEASON } from '../data/catalog';
+import { api } from '../services';
+import { useQuery } from '../hooks/useQuery';
+import { PageSkeleton } from '../components/Async';
 import { ME } from '../data/mock';
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
@@ -113,17 +106,16 @@ function BuyModal({ item, onClose }) {
   const [state, setState] = useState('confirm'); // confirm | loading | done
   const [error, setError] = useState('');
 
-  const confirm = () => {
+  const confirm = async () => {
     setState('loading');
-    setTimeout(() => {
-      try {
-        buy(item.id);
-        setState('done');
-      } catch (e) {
-        setError(e.message);
-        setState('confirm');
-      }
-    }, 700);
+    setError('');
+    try {
+      await buy(item.id);
+      setState('done');
+    } catch (e) {
+      setError(e.message);
+      setState('confirm');
+    }
   };
 
   return (
@@ -200,6 +192,12 @@ const STATUS = {
 function Inventory() {
   const { inventory, equipped, redeem, activatePremium, toggleEquip } = useShop();
   const { profile } = useAuth();
+  const [error, setError] = useState('');
+  // Ações do inventário passam pelo serviço; erros aparecem acima da lista
+  const act = (promise) => {
+    setError('');
+    promise.catch((e) => setError(e.message));
+  };
 
   if (!inventory.length) {
     return (
@@ -212,80 +210,91 @@ function Inventory() {
   }
 
   return (
-    <ul className="inventory">
-      {inventory.map((inv) => {
-        const item = ITEMS_BY_ID[inv.itemId];
-        const status = STATUS[inv.status];
-        const isCosmetic = item.kind === 'frame' || item.kind === 'nick';
-        const equippedNow = isCosmetic && equipped[item.kind] === item.id;
-        return (
-          <li
-            key={inv.uid}
-            className="card inv-row"
-            style={item.rarity ? { '--rarity': RARITIES[item.rarity].color } : undefined}
-          >
-            <div className="inv-media">
-              {item.kind === 'skin' ? (
-                <img src={item.image} alt="" width="96" height="72" />
-              ) : (
-                <CosmeticPreview item={item} />
-              )}
-            </div>
-            <div className="inv-info">
-              <strong>{item.name}</strong>
-              <span className="muted small">Comprado em {new Date(inv.boughtAt).toLocaleDateString('pt-BR')}</span>
-            </div>
-            {item.kind === 'skin' && <span className={`tag ${status.cls}`}>{status.label}</span>}
-            <div className="inv-actions">
-              {item.kind === 'skin' &&
-                inv.status === 'available' &&
-                (profile.tradeUrl ? (
-                  <button type="button" className="btn btn-primary btn-sm" onClick={() => redeem(inv.uid)}>
-                    <Truck size={14} aria-hidden="true" /> Resgatar na Steam
-                  </button>
+    <>
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+      <ul className="inventory">
+        {inventory.map((inv) => {
+          const item = inv.item;
+          const status = STATUS[inv.status];
+          const isCosmetic = item.kind === 'frame' || item.kind === 'nick';
+          const equippedNow = isCosmetic && equipped[item.kind] === item.id;
+          return (
+            <li
+              key={inv.uid}
+              className="card inv-row"
+              style={item.rarity ? { '--rarity': RARITIES[item.rarity].color } : undefined}
+            >
+              <div className="inv-media">
+                {item.kind === 'skin' ? (
+                  <img src={item.image} alt="" width="96" height="72" />
                 ) : (
-                  <Link
-                    to="/perfil/editar"
-                    className="btn btn-ghost btn-sm"
-                    title="Cadastre seu link de troca para resgatar"
-                  >
-                    <Lock size={14} aria-hidden="true" /> Cadastrar link de troca
-                  </Link>
-                ))}
-              {item.kind === 'premium' &&
-                (inv.status === 'available' ? (
-                  <button type="button" className="btn btn-primary btn-sm" onClick={() => activatePremium(inv.uid)}>
-                    <Crown size={14} aria-hidden="true" /> Ativar
-                  </button>
-                ) : (
-                  <span className="tag">Ativado</span>
-                ))}
-              {isCosmetic && (
-                <button
-                  type="button"
-                  className={`btn btn-sm ${equippedNow ? 'btn-primary' : 'btn-ghost'}`}
-                  onClick={() => toggleEquip(item.id)}
-                  aria-pressed={equippedNow}
-                >
-                  {equippedNow ? (
-                    <>
-                      <Check size={14} aria-hidden="true" /> Equipado
-                    </>
+                  <CosmeticPreview item={item} />
+                )}
+              </div>
+              <div className="inv-info">
+                <strong>{item.name}</strong>
+                <span className="muted small">Comprado em {new Date(inv.boughtAt).toLocaleDateString('pt-BR')}</span>
+              </div>
+              {item.kind === 'skin' && <span className={`tag ${status.cls}`}>{status.label}</span>}
+              <div className="inv-actions">
+                {item.kind === 'skin' &&
+                  inv.status === 'available' &&
+                  (profile.tradeUrl ? (
+                    <button type="button" className="btn btn-primary btn-sm" onClick={() => act(redeem(inv.uid))}>
+                      <Truck size={14} aria-hidden="true" /> Resgatar na Steam
+                    </button>
                   ) : (
-                    'Equipar'
-                  )}
-                </button>
-              )}
-              {item.kind === 'banner' && (
-                <Link to="/perfil/editar" className="btn btn-ghost btn-sm">
-                  Usar no perfil
-                </Link>
-              )}
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+                    <Link
+                      to="/perfil/editar"
+                      className="btn btn-ghost btn-sm"
+                      title="Cadastre seu link de troca para resgatar"
+                    >
+                      <Lock size={14} aria-hidden="true" /> Cadastrar link de troca
+                    </Link>
+                  ))}
+                {item.kind === 'premium' &&
+                  (inv.status === 'available' ? (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => act(activatePremium(inv.uid))}
+                    >
+                      <Crown size={14} aria-hidden="true" /> Ativar
+                    </button>
+                  ) : (
+                    <span className="tag">Ativado</span>
+                  ))}
+                {isCosmetic && (
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${equippedNow ? 'btn-primary' : 'btn-ghost'}`}
+                    onClick={() => act(toggleEquip(item.id))}
+                    aria-pressed={equippedNow}
+                  >
+                    {equippedNow ? (
+                      <>
+                        <Check size={14} aria-hidden="true" /> Equipado
+                      </>
+                    ) : (
+                      'Equipar'
+                    )}
+                  </button>
+                )}
+                {item.kind === 'banner' && (
+                  <Link to="/perfil/editar" className="btn btn-ghost btn-sm">
+                    Usar no perfil
+                  </Link>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }
 
@@ -298,19 +307,20 @@ export default function Shop() {
   const [q, setQ] = useState('');
   const [sort, setSort] = useState('price-asc');
   const [affordable, setAffordable] = useState(false);
+  const catalog = useQuery(() => api.shop.catalog(), []);
 
   const tier = Math.min(SEASON.tiers, Math.floor(seasonXp / SEASON.xpPerTier) + 1);
   const tierXp = seasonXp % SEASON.xpPerTier;
 
   const skins = useMemo(() => {
-    const list = SKINS.filter(
+    const list = (catalog.data?.skins ?? []).filter(
       (s) =>
         (type === 'all' || s.type === type) &&
         s.name.toLowerCase().includes(q.toLowerCase()) &&
         (!affordable || s.price <= points),
     );
     return [...list].sort((a, b) => (sort === 'price-asc' ? a.price - b.price : b.price - a.price));
-  }, [type, q, sort, affordable, points]);
+  }, [catalog.data, type, q, sort, affordable, points]);
 
   const setTab = (id) => setParams(id === 'skins' ? {} : { aba: id }, { replace: true });
 
@@ -329,7 +339,12 @@ export default function Shop() {
           <strong className="balance">
             <Coins size={26} aria-hidden="true" /> {fp(points)} <small>FP</small>
           </strong>
-          <button type="button" className="btn btn-primary btn-sm" onClick={claimDaily} disabled={!dailyAvailable}>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => claimDaily().catch(() => {})}
+            disabled={!dailyAvailable}
+          >
             <Gift size={14} aria-hidden="true" />{' '}
             {dailyAvailable ? 'Coletar +100 FP diários' : 'Diária coletada · volte amanhã'}
           </button>
@@ -375,7 +390,9 @@ export default function Shop() {
         ))}
       </div>
 
-      {tab === 'skins' && (
+      {tab !== 'inventario' && !catalog.data && <PageSkeleton variant="cards" rows={8} />}
+
+      {tab === 'skins' && catalog.data && (
         <>
           <div className="toolbar">
             <div className="chips" role="radiogroup" aria-label="Tipo de arma">
@@ -423,17 +440,17 @@ export default function Shop() {
         </>
       )}
 
-      {tab === 'cosmeticos' && (
+      {tab === 'cosmeticos' && catalog.data && (
         <div className="shop-grid">
-          {COSMETICS.map((c) => (
+          {catalog.data.cosmetics.map((c) => (
             <ItemCard key={c.id} item={c} onBuy={setBuying} />
           ))}
         </div>
       )}
 
-      {tab === 'premium' && (
+      {tab === 'premium' && catalog.data && (
         <div className="shop-grid">
-          {PREMIUM_ITEMS.map((c) => (
+          {catalog.data.premium.map((c) => (
             <ItemCard key={c.id} item={c} onBuy={setBuying} />
           ))}
         </div>

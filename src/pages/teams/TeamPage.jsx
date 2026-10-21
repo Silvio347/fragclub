@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Crown, UserPlus, LogOut, Trash2, Users, Trophy, Calendar, MapPin, Search, X } from 'lucide-react';
-import { ME, FRIENDS } from '../../data/mock';
+import { ME } from '../../data/mock';
+import { api } from '../../services';
+import { useQuery } from '../../hooks/useQuery';
+import { Skeleton } from '../../components/Async';
 import { TEAM_MAX, TEAM_ROLES, teamStats } from '../../data/teams';
 import { useTeams, memberNick, resolveMember } from '../../context/TeamsContext';
 import { ratingClass } from '../../utils/levels';
@@ -10,11 +13,14 @@ import TeamForm from './TeamForm';
 
 function InviteToTeamModal({ team, onClose }) {
   const { inviteToTeam } = useTeams();
+  const friendsQ = useQuery(() => api.friends.list(), []);
   const [q, setQ] = useState('');
+  const [error, setError] = useState('');
   const inTeam = new Set(team.members.map(memberNick));
   const invited = new Set(team.invites ?? []);
   const full = team.members.length + invited.size >= TEAM_MAX;
-  const list = FRIENDS.filter((f) => f.nick.includes(q.trim().toLowerCase()));
+  const list = (friendsQ.data ?? []).filter((f) => f.nick.includes(q.trim().toLowerCase()));
+  const invite = (f) => inviteToTeam(team.id, f).catch((e) => setError(e.message));
 
   return (
     <Modal title={`Convidar para ${team.name}`} onClose={onClose}>
@@ -32,6 +38,12 @@ function InviteToTeamModal({ team, onClose }) {
           aria-label="Buscar amigo"
         />
       </label>
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+      {friendsQ.loading && <Skeleton h={180} />}
       <ul className="invite-list">
         {list.map((f) => {
           const label = inTeam.has(f.nick) ? 'No time' : invited.has(f.nick) ? 'Convidado' : 'Convidar';
@@ -50,7 +62,7 @@ function InviteToTeamModal({ team, onClose }) {
                 type="button"
                 className={`btn btn-sm ${disabled ? 'btn-ghost' : 'btn-primary'}`}
                 disabled={disabled}
-                onClick={() => inviteToTeam(team.id, f)}
+                onClick={() => invite(f)}
               >
                 {label}
               </button>
@@ -97,6 +109,7 @@ export default function TeamPage() {
   const [tab, setTab] = useState('elenco');
   const [modal, setModal] = useState(null); // invite | leave | disband | { remove: nick }
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
 
   if (!team) {
     return (
@@ -130,16 +143,31 @@ export default function TeamPage() {
     ...(captain ? [{ id: 'config', label: 'Configurações' }] : []),
   ];
 
-  const doLeave = () => {
-    leaveTeam(team.id);
-    navigate('/times');
+  // Ações vão para o serviço; erros (ex.: sem permissão) aparecem no topo da página
+  const act = (promise) => {
+    setError('');
+    return promise.catch((e) => {
+      setError(e.message);
+      throw e;
+    });
   };
+
+  const doLeave = () =>
+    act(leaveTeam(team.id))
+      .then(() => navigate('/times'))
+      .catch(() => setModal(null));
 
   return (
     <div className="page stack">
       <Link to="/times" className="link-muted back-link">
         <ArrowLeft size={14} aria-hidden="true" /> Times
       </Link>
+
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
 
       <section className="card team-hero" style={{ '--team': team.color }}>
         <div className="team-hero-banner" aria-hidden="true" />
@@ -185,14 +213,18 @@ export default function TeamPage() {
                 )}
               </>
             ) : requested ? (
-              <button type="button" className="btn btn-ghost" onClick={() => cancelRequest(team.id)}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => act(cancelRequest(team.id)).catch(() => {})}
+              >
                 <span className="spinner spinner-sm" aria-hidden="true" /> Solicitação enviada · cancelar
               </button>
             ) : (
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={() => requestJoin(team.id)}
+                onClick={() => act(requestJoin(team.id)).catch(() => {})}
                 disabled={!team.recruiting || !levelOk || team.members.length >= TEAM_MAX}
               >
                 <UserPlus size={16} aria-hidden="true" />
@@ -291,7 +323,7 @@ export default function TeamPage() {
                     {captain && !m.me ? (
                       <select
                         value={m.role}
-                        onChange={(e) => setRole(team.id, m.nick, e.target.value)}
+                        onChange={(e) => act(setRole(team.id, m.nick, e.target.value)).catch(() => {})}
                         aria-label={`Função de ${m.nick}`}
                         className="select-sm"
                       >
@@ -401,8 +433,8 @@ export default function TeamPage() {
               minLevel: team.minLevel,
             }}
             submitLabel={saved ? 'Salvo ✓' : 'Salvar alterações'}
-            onSubmit={(data) => {
-              editTeam(team.id, data);
+            onSubmit={async (data) => {
+              await editTeam(team.id, data);
               setSaved(true);
               setTimeout(() => setSaved(false), 1800);
             }}
@@ -435,7 +467,7 @@ export default function TeamPage() {
           text={`Remover ${modal.remove} do ${team.name}?`}
           confirmLabel="Remover"
           onConfirm={() => {
-            removeMember(team.id, modal.remove);
+            act(removeMember(team.id, modal.remove)).catch(() => {});
             setModal(null);
           }}
           onClose={() => setModal(null)}
