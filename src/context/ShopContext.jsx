@@ -35,9 +35,17 @@ export function ShopProvider({ children }) {
         ...s,
         points: s.points - item.price,
         stock: { ...s.stock, [itemId]: (s.stock[itemId] ?? 0) + 1 },
-        inventory: [{ uid: `${itemId}-${Date.now()}`, itemId, boughtAt: Date.now(), status: 'available' }, ...s.inventory],
+        inventory: [
+          { uid: `${itemId}-${Date.now()}`, itemId, boughtAt: Date.now(), status: 'available' },
+          ...s.inventory,
+        ],
       }));
-      notify({ type: 'shop', title: 'Compra concluída', body: `${item.name} foi para o seu inventário.`, link: '/loja?aba=inventario' });
+      notify({
+        type: 'shop',
+        title: 'Compra concluída',
+        body: `${item.name} foi para o seu inventário.`,
+        link: '/loja?aba=inventario',
+      });
     },
     [state, setState, notify],
   );
@@ -51,7 +59,12 @@ export function ShopProvider({ children }) {
       const inv = state.inventory.find((i) => i.uid === uid);
       if (!inv) return;
       setStatus(uid, 'redeeming');
-      notify({ type: 'shop', title: 'Resgate solicitado', body: `${ITEMS_BY_ID[inv.itemId].name} será enviada por trade em até 48h.`, link: '/loja?aba=inventario' });
+      notify({
+        type: 'shop',
+        title: 'Resgate solicitado',
+        body: `${ITEMS_BY_ID[inv.itemId].name} será enviada por trade em até 48h.`,
+        link: '/loja?aba=inventario',
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [state.inventory, notify],
@@ -63,7 +76,12 @@ export function ShopProvider({ children }) {
       if (!inv) return;
       grantPremiumDays(ITEMS_BY_ID[inv.itemId].days);
       setStatus(uid, 'used');
-      notify({ type: 'system', title: 'Premium ativado', body: `${ITEMS_BY_ID[inv.itemId].name} ativado na sua conta.`, link: '/premium' });
+      notify({
+        type: 'system',
+        title: 'Premium ativado',
+        body: `${ITEMS_BY_ID[inv.itemId].name} ativado na sua conta.`,
+        link: '/premium',
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [state.inventory, grantPremiumDays, notify],
@@ -74,7 +92,10 @@ export function ShopProvider({ children }) {
     (itemId) => {
       const item = ITEMS_BY_ID[itemId];
       if (!item || (item.kind !== 'frame' && item.kind !== 'nick')) return;
-      setState((s) => ({ ...s, equipped: { ...s.equipped, [item.kind]: s.equipped[item.kind] === itemId ? null : itemId } }));
+      setState((s) => ({
+        ...s,
+        equipped: { ...s.equipped, [item.kind]: s.equipped[item.kind] === itemId ? null : itemId },
+      }));
     },
     [setState],
   );
@@ -82,7 +103,12 @@ export function ShopProvider({ children }) {
   const claimDaily = useCallback(() => {
     if (state.lastDaily === today()) return false;
     setState((s) => ({ ...s, points: s.points + 100, seasonXp: s.seasonXp + 100, lastDaily: today() }));
-    notify({ type: 'points', title: '+100 FragPoints', body: 'Recompensa diária coletada. Volte amanhã!', link: '/loja' });
+    notify({
+      type: 'points',
+      title: '+100 FragPoints',
+      body: 'Recompensa diária coletada. Volte amanhã!',
+      link: '/loja',
+    });
     return true;
   }, [state.lastDaily, setState, notify]);
 
@@ -99,7 +125,7 @@ export function ShopProvider({ children }) {
       claimDaily,
       owns,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [state, buy, redeem, activatePremium, toggleEquip, claimDaily, owns],
   );
 

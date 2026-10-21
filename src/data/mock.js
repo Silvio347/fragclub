@@ -22,12 +22,54 @@ export const ALL_MAPS = [...MAPS, ...EXTRA_MAPS];
 export const MAPS_BY_ID = Object.fromEntries(ALL_MAPS.map((m) => [m.id, m]));
 
 export const NICKS = [
-  'kzinho', 'zeroping', 'brabo', 'tchuco', 'flashzin', 'nadeking', 'spraydown', 'awpzera',
-  'clutchz', 'baianox', 'r3dline', 'xandao', 'vrau', 'pistolinha', 'n1ghtz', 'luk4s',
-  'dedinho', 'ecozera', 'hsmachine', 'smokey', 'molotov', 'rushb', 'p4ulo', 'tiltado',
-  'gomesz', 'fragzin', 'deaglezin', 'caiofps', 'kngz', 'ninjazin', 'lurk3r', 'entryfrag',
-  'ratinho', 'zezin', 'k1ller', 'b1tz', 'mibr4ever', 'tapzera', 'onetap', 'prefire',
-  'sprayctrl', 'boostado', 'wallbang', 'peekzera', 'ninjadefuse', 'ak47lover', 'mid2b', 'bananaboy',
+  'kzinho',
+  'zeroping',
+  'brabo',
+  'tchuco',
+  'flashzin',
+  'nadeking',
+  'spraydown',
+  'awpzera',
+  'clutchz',
+  'baianox',
+  'r3dline',
+  'xandao',
+  'vrau',
+  'pistolinha',
+  'n1ghtz',
+  'luk4s',
+  'dedinho',
+  'ecozera',
+  'hsmachine',
+  'smokey',
+  'molotov',
+  'rushb',
+  'p4ulo',
+  'tiltado',
+  'gomesz',
+  'fragzin',
+  'deaglezin',
+  'caiofps',
+  'kngz',
+  'ninjazin',
+  'lurk3r',
+  'entryfrag',
+  'ratinho',
+  'zezin',
+  'k1ller',
+  'b1tz',
+  'mibr4ever',
+  'tapzera',
+  'onetap',
+  'prefire',
+  'sprayctrl',
+  'boostado',
+  'wallbang',
+  'peekzera',
+  'ninjadefuse',
+  'ak47lover',
+  'mid2b',
+  'bananaboy',
 ];
 
 const COUNTRIES = ['BR', 'BR', 'BR', 'BR', 'BR', 'AR', 'PT', 'CL'];
@@ -93,7 +135,20 @@ export function getPlayer(nick) {
 
 export const RANKING = [...NICKS.map(makePlayer), ME].sort((a, b) => b.elo - a.elo);
 
-const STATUSES = ['online', 'in-game', 'online', 'online', 'in-game', 'online', 'offline', 'online', 'offline', 'online', 'offline', 'online'];
+const STATUSES = [
+  'online',
+  'in-game',
+  'online',
+  'online',
+  'in-game',
+  'online',
+  'offline',
+  'online',
+  'offline',
+  'online',
+  'offline',
+  'online',
+];
 export const FRIENDS = NICKS.slice(0, STATUSES.length).map((nick, i) => ({
   ...makePlayer(nick),
   status: STATUSES[i],
@@ -195,7 +250,10 @@ export function getMatchDetails(matchId) {
   const m = getMatchHistory(nick, index + 1)[index];
   const rng = seeded(`details:${matchId}`);
   const rounds = m.scoreUs + m.scoreThem;
-  const pool = shuffle(rng, NICKS.filter((n) => n !== nick));
+  const pool = shuffle(
+    rng,
+    NICKS.filter((n) => n !== nick),
+  );
   const teamA = [getPlayer(nick), ...pool.slice(0, 4).map(makePlayer)];
   const teamB = pool.slice(4, 9).map(makePlayer);
 
@@ -296,7 +354,10 @@ export function genMatch(id, { partyA, partyB, teamBName, mode } = {}) {
   const a = partyA?.length ? partyA.map((p) => getPlayer(p.nick)) : [ME];
   const b = partyB?.length ? partyB.map((p) => getPlayer(p.nick)) : [];
   const used = new Set([...a, ...b].map((p) => p.nick));
-  const fill = shuffle(rng, NICKS.filter((n) => !used.has(n))).map(makePlayer);
+  const fill = shuffle(
+    rng,
+    NICKS.filter((n) => !used.has(n)),
+  ).map(makePlayer);
   while (a.length < 5) a.push(fill.shift());
   while (b.length < 5) b.push(fill.shift());
   const avg = (t) => Math.round(t.reduce((s, p) => s + p.elo, 0) / t.length);
@@ -312,8 +373,18 @@ export function genMatch(id, { partyA, partyB, teamBName, mode } = {}) {
 }
 
 const LOBBY_NAMES = [
-  'Os Brabos', 'Rush B Sem Medo', 'Tryhard SP', 'Só Tapa', 'Mix 9+', 'Bonde do AWP', 'Eco Forte',
-  'Jogando Sério', 'Clutch ou Nada', 'Smoke Criminal', 'Galera do Mid', 'Sem Tilt',
+  'Os Brabos',
+  'Rush B Sem Medo',
+  'Tryhard SP',
+  'Só Tapa',
+  'Mix 9+',
+  'Bonde do AWP',
+  'Eco Forte',
+  'Jogando Sério',
+  'Clutch ou Nada',
+  'Smoke Criminal',
+  'Galera do Mid',
+  'Sem Tilt',
 ];
 
 export function genLobbies(seed = 'lobbies') {
@@ -359,7 +430,12 @@ export function genServers(type) {
       players: randInt(rng, 0, max),
       max,
       region,
-      ping: region === 'São Paulo' ? randInt(rng, 6, 18) : region === 'Rio de Janeiro' ? randInt(rng, 12, 26) : randInt(rng, 38, 70),
+      ping:
+        region === 'São Paulo'
+          ? randInt(rng, 6, 18)
+          : region === 'Rio de Janeiro'
+            ? randInt(rng, 12, 26)
+            : randInt(rng, 38, 70),
       premium: rng() > 0.8,
       ip: `177.54.${randInt(rng, 160, 179)}.${randInt(rng, 2, 250)}:${27015 + i}`,
     };
@@ -369,12 +445,85 @@ export function genServers(type) {
 export const SERVER_VARIANTS = SERVER_TAGS;
 
 export const TOURNAMENTS = [
-  { id: 't1', name: 'FragClub Masters · Outubro', prize: 'R$ 10.000', format: '5v5 · Eliminação dupla', teams: 28, slots: 32, date: '26 out · 14h', status: 'open', minLevel: 8, colors: ['#7c3aed', '#1e1b4b'], map: 'mirage' },
-  { id: 't2', name: 'Copa Noturna #142', prize: 'R$ 1.500', format: '5v5 · Eliminação simples', teams: 16, slots: 16, date: 'Hoje · 22h', status: 'live', minLevel: 4, colors: ['#be185d', '#3b0a24'], map: 'inferno' },
-  { id: 't3', name: 'Wingman Cup', prize: 'R$ 800', format: '2v2 · Eliminação simples', teams: 41, slots: 64, date: '24 out · 19h', status: 'open', minLevel: 1, colors: ['#0e7490', '#082f49'], map: 'vertigo' },
-  { id: 't4', name: 'Liga Universitária CS2', prize: 'R$ 5.000', format: '5v5 · Grupos + playoffs', teams: 12, slots: 24, date: '02 nov · 15h', status: 'open', minLevel: 1, colors: ['#4d7c0f', '#1a2e05'], map: 'ancient' },
-  { id: 't5', name: 'Desafio Level 10', prize: 'R$ 3.000', format: '5v5 · Suíço', teams: 32, slots: 32, date: '19 out · 16h', status: 'finished', minLevel: 10, winner: 'time_onetap', colors: ['#a16207', '#2c1a03'], map: 'dust2' },
-  { id: 't6', name: 'Copa Iniciante', prize: 'Skins + Premium', format: '5v5 · Eliminação simples', teams: 20, slots: 32, date: '25 out · 13h', status: 'open', minLevel: 1, colors: ['#6d28d9', '#170f2e'], map: 'anubis' },
+  {
+    id: 't1',
+    name: 'FragClub Masters · Outubro',
+    prize: 'R$ 10.000',
+    format: '5v5 · Eliminação dupla',
+    teams: 28,
+    slots: 32,
+    date: '26 out · 14h',
+    status: 'open',
+    minLevel: 8,
+    colors: ['#7c3aed', '#1e1b4b'],
+    map: 'mirage',
+  },
+  {
+    id: 't2',
+    name: 'Copa Noturna #142',
+    prize: 'R$ 1.500',
+    format: '5v5 · Eliminação simples',
+    teams: 16,
+    slots: 16,
+    date: 'Hoje · 22h',
+    status: 'live',
+    minLevel: 4,
+    colors: ['#be185d', '#3b0a24'],
+    map: 'inferno',
+  },
+  {
+    id: 't3',
+    name: 'Wingman Cup',
+    prize: 'R$ 800',
+    format: '2v2 · Eliminação simples',
+    teams: 41,
+    slots: 64,
+    date: '24 out · 19h',
+    status: 'open',
+    minLevel: 1,
+    colors: ['#0e7490', '#082f49'],
+    map: 'vertigo',
+  },
+  {
+    id: 't4',
+    name: 'Liga Universitária CS2',
+    prize: 'R$ 5.000',
+    format: '5v5 · Grupos + playoffs',
+    teams: 12,
+    slots: 24,
+    date: '02 nov · 15h',
+    status: 'open',
+    minLevel: 1,
+    colors: ['#4d7c0f', '#1a2e05'],
+    map: 'ancient',
+  },
+  {
+    id: 't5',
+    name: 'Desafio Level 10',
+    prize: 'R$ 3.000',
+    format: '5v5 · Suíço',
+    teams: 32,
+    slots: 32,
+    date: '19 out · 16h',
+    status: 'finished',
+    minLevel: 10,
+    winner: 'time_onetap',
+    colors: ['#a16207', '#2c1a03'],
+    map: 'dust2',
+  },
+  {
+    id: 't6',
+    name: 'Copa Iniciante',
+    prize: 'Skins + Premium',
+    format: '5v5 · Eliminação simples',
+    teams: 20,
+    slots: 32,
+    date: '25 out · 13h',
+    status: 'open',
+    minLevel: 1,
+    colors: ['#6d28d9', '#170f2e'],
+    map: 'anubis',
+  },
 ];
 
 export const MISSIONS = [

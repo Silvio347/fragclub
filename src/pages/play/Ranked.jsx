@@ -69,7 +69,8 @@ export default function Ranked() {
           </label>
           <ul className="queue-info">
             <li>
-              <Activity size={14} aria-hidden="true" /> <strong>{inQueue.toLocaleString('pt-BR')}</strong> jogadores na fila
+              <Activity size={14} aria-hidden="true" /> <strong>{inQueue.toLocaleString('pt-BR')}</strong> jogadores na
+              fila
             </li>
             <li>
               <Clock size={14} aria-hidden="true" /> Tempo médio <strong>00:48</strong>

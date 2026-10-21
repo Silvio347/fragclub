@@ -3,7 +3,6 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { MAPS } from '../data/mock';
-import '../styles/auth.css';
 
 function SteamIcon() {
   return (
@@ -57,7 +56,12 @@ function PasswordInput({ id, value, onChange, autoComplete, invalid }) {
         required
         minLength={6}
       />
-      <button type="button" className="input-icon" onClick={() => setShow((s) => !s)} aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}>
+      <button
+        type="button"
+        className="input-icon"
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}
+      >
         {show ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
     </div>
@@ -97,7 +101,8 @@ export function Login() {
   return (
     <AuthLayout title="Entrar" subtitle="Bem-vindo de volta. Bora subir esse ELO." mapIndex={0}>
       <button type="button" className="btn btn-steam btn-lg btn-block" onClick={steam} disabled={!!loading}>
-        {loading === 'steam' ? <Loader2 size={18} className="spin" aria-hidden="true" /> : <SteamIcon />} Entrar com Steam
+        {loading === 'steam' ? <Loader2 size={18} className="spin" aria-hidden="true" /> : <SteamIcon />} Entrar com
+        Steam
       </button>
       <div className="divider">
         <span>ou</span>
@@ -188,10 +193,7 @@ export function Register() {
     }
   };
 
-  const strength = Math.min(
-    4,
-    [/.{8,}/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((r) => r.test(form.password)).length,
-  );
+  const strength = Math.min(4, [/.{8,}/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((r) => r.test(form.password)).length);
 
   const fieldError = (k) =>
     errors[k] && (
@@ -205,23 +207,50 @@ export function Register() {
       <form onSubmit={submit} className="auth-form" noValidate>
         <div className="field">
           <label htmlFor="nick">Nick</label>
-          <input id="nick" value={form.nick} onChange={set('nick')} autoComplete="username" aria-invalid={!!errors.nick || undefined} aria-describedby={errors.nick ? 'nick-err' : undefined} />
+          <input
+            id="nick"
+            value={form.nick}
+            onChange={set('nick')}
+            autoComplete="username"
+            aria-invalid={!!errors.nick || undefined}
+            aria-describedby={errors.nick ? 'nick-err' : undefined}
+          />
           {fieldError('nick')}
         </div>
         <div className="field">
           <label htmlFor="r-email">E-mail</label>
-          <input id="r-email" type="email" value={form.email} onChange={set('email')} autoComplete="email" aria-invalid={!!errors.email || undefined} aria-describedby={errors.email ? 'email-err' : undefined} />
+          <input
+            id="r-email"
+            type="email"
+            value={form.email}
+            onChange={set('email')}
+            autoComplete="email"
+            aria-invalid={!!errors.email || undefined}
+            aria-describedby={errors.email ? 'email-err' : undefined}
+          />
           {fieldError('email')}
         </div>
         <div className="field-row">
           <div className="field">
             <label htmlFor="r-pass">Senha</label>
-            <PasswordInput id="r-pass" value={form.password} onChange={set('password')} autoComplete="new-password" invalid={!!errors.password} />
+            <PasswordInput
+              id="r-pass"
+              value={form.password}
+              onChange={set('password')}
+              autoComplete="new-password"
+              invalid={!!errors.password}
+            />
             {fieldError('password')}
           </div>
           <div className="field">
             <label htmlFor="r-confirm">Confirmar senha</label>
-            <PasswordInput id="r-confirm" value={form.confirm} onChange={set('confirm')} autoComplete="new-password" invalid={!!errors.confirm} />
+            <PasswordInput
+              id="r-confirm"
+              value={form.confirm}
+              onChange={set('confirm')}
+              autoComplete="new-password"
+              invalid={!!errors.confirm}
+            />
             {fieldError('confirm')}
           </div>
         </div>
@@ -231,7 +260,12 @@ export function Register() {
           ))}
         </div>
         <label className="check">
-          <input type="checkbox" checked={form.terms} onChange={set('terms')} aria-invalid={!!errors.terms || undefined} />
+          <input
+            type="checkbox"
+            checked={form.terms}
+            onChange={set('terms')}
+            aria-invalid={!!errors.terms || undefined}
+          />
           Li e aceito os termos de uso e a política de privacidade
         </label>
         {fieldError('terms')}

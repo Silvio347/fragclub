@@ -29,7 +29,11 @@ function LobbyCard({ lobby, challenge, onChallenge, disabled }) {
       <div className="lobby-players">
         <div className="avatar-stack">
           {lobby.players.map((p, i) => (
-            <span key={p.nick} title={`${p.nick} · level ${p.level}${i === 0 ? ' · líder' : ''}`} className={i === 0 ? 'leader-avatar' : ''}>
+            <span
+              key={p.nick}
+              title={`${p.nick} · level ${p.level}${i === 0 ? ' · líder' : ''}`}
+              className={i === 0 ? 'leader-avatar' : ''}
+            >
               {i === 0 && <Crown size={15} className="leader-crown" aria-label="Líder do lobby" />}
               <Avatar nick={p.nick} size={34} />
             </span>
@@ -96,7 +100,13 @@ export default function Lobbies() {
   const [isPrivate, setIsPrivate] = useState(false);
   const [challenge, setChallenge] = useState(null);
   const [incoming, setIncoming] = useState(null);
-  const [filters, setFilters] = useState({ q: '', region: 'all', nearLevel: false, onlyFull: false, hidePlaying: true });
+  const [filters, setFilters] = useState({
+    q: '',
+    region: 'all',
+    nearLevel: false,
+    onlyFull: false,
+    hidePlaying: true,
+  });
   const timers = useRef([]);
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
@@ -126,11 +136,14 @@ export default function Lobbies() {
     setOpen(true); // desafiar abre seu lobby automaticamente
     setChallenge({ lobbyId: lobby.id, status: 'pending' });
     const accepted = Math.random() < 0.75;
-    later(() => {
-      setChallenge({ lobbyId: lobby.id, status: accepted ? 'accepted' : 'declined' });
-      if (accepted) later(() => goToMatch(lobby), 1100);
-      else later(() => setChallenge(null), 2500);
-    }, 1800 + Math.random() * 2200);
+    later(
+      () => {
+        setChallenge({ lobbyId: lobby.id, status: accepted ? 'accepted' : 'declined' });
+        if (accepted) later(() => goToMatch(lobby), 1100);
+        else later(() => setChallenge(null), 2500);
+      },
+      1800 + Math.random() * 2200,
+    );
   };
 
   const myLevel = ME.level;
@@ -143,7 +156,8 @@ export default function Lobbies() {
     return true;
   });
 
-  const setF = (k) => (e) => setFilters({ ...filters, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+  const setF = (k) => (e) =>
+    setFilters({ ...filters, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
   const busy = !!challenge || queueStatus !== 'idle' || pending.length > 0;
 
   return (
@@ -187,10 +201,24 @@ export default function Lobbies() {
             />
           </div>
           <div className="segmented" role="radiogroup" aria-label="Visibilidade do lobby">
-            <button type="button" role="radio" aria-checked={!isPrivate} className={!isPrivate ? 'active' : ''} onClick={() => setIsPrivate(false)} disabled={open}>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={!isPrivate}
+              className={!isPrivate ? 'active' : ''}
+              onClick={() => setIsPrivate(false)}
+              disabled={open}
+            >
               <Globe size={14} aria-hidden="true" /> Público
             </button>
-            <button type="button" role="radio" aria-checked={isPrivate} className={isPrivate ? 'active' : ''} onClick={() => setIsPrivate(true)} disabled={open}>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={isPrivate}
+              className={isPrivate ? 'active' : ''}
+              onClick={() => setIsPrivate(true)}
+              disabled={open}
+            >
               <Lock size={14} aria-hidden="true" /> Privado
             </button>
           </div>
@@ -200,12 +228,22 @@ export default function Lobbies() {
                 <span className="pulse-dot" aria-hidden="true" />
                 {isPrivate ? 'Lobby privado aberto. Só você pode desafiar.' : 'Lobby aberto e visível para desafios.'}
               </p>
-              <button type="button" className="btn btn-ghost btn-block" onClick={() => setOpen(false)} disabled={!!challenge}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-block"
+                onClick={() => setOpen(false)}
+                disabled={!!challenge}
+              >
                 Fechar lobby
               </button>
             </>
           ) : (
-            <button type="button" className="btn btn-primary btn-block" onClick={() => setOpen(true)} disabled={pending.length > 0}>
+            <button
+              type="button"
+              className="btn btn-primary btn-block"
+              onClick={() => setOpen(true)}
+              disabled={pending.length > 0}
+            >
               Abrir lobby
             </button>
           )}
@@ -222,7 +260,13 @@ export default function Lobbies() {
           </h2>
           <label className="search">
             <Search size={16} aria-hidden="true" />
-            <input type="search" placeholder="Buscar lobby" value={filters.q} onChange={setF('q')} aria-label="Buscar lobby" />
+            <input
+              type="search"
+              placeholder="Buscar lobby"
+              value={filters.q}
+              onChange={setF('q')}
+              aria-label="Buscar lobby"
+            />
           </label>
           <select value={filters.region} onChange={setF('region')} aria-label="Região">
             <option value="all">Todas as regiões</option>

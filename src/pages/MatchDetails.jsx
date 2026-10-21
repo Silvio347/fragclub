@@ -1,12 +1,23 @@
 import { useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, Clock, Server, Download, Lock, Skull, Bomb, ShieldCheck, Timer, Star, Crosshair, Flame, Target,
+  ArrowLeft,
+  Clock,
+  Server,
+  Download,
+  Lock,
+  Skull,
+  Bomb,
+  ShieldCheck,
+  Timer,
+  Star,
+  Crosshair,
+  Flame,
+  Target,
 } from 'lucide-react';
 import { getMatchDetails, ME } from '../data/mock';
 import { ratingClass } from '../utils/levels';
 import { Avatar, LevelBadge } from '../components/ui';
-import '../styles/match-details.css';
 
 const END_ICON = { elim: Skull, bomb: Bomb, defuse: ShieldCheck, time: Timer };
 const END_LABEL = { elim: 'Eliminação', bomb: 'Bomba explodiu', defuse: 'Bomba desarmada', time: 'Tempo esgotado' };
@@ -16,7 +27,14 @@ const COLUMNS = {
     { key: 'kills', label: 'K', title: 'Kills' },
     { key: 'deaths', label: 'D', title: 'Mortes' },
     { key: 'assists', label: 'A', title: 'Assistências' },
-    { key: 'diff', label: '+/-', title: 'Saldo de kills', get: (p) => p.kills - p.deaths, fmt: (v) => (v > 0 ? `+${v}` : v), cls: (v) => (v > 0 ? 'text-win' : v < 0 ? 'text-loss' : '') },
+    {
+      key: 'diff',
+      label: '+/-',
+      title: 'Saldo de kills',
+      get: (p) => p.kills - p.deaths,
+      fmt: (v) => (v > 0 ? `+${v}` : v),
+      cls: (v) => (v > 0 ? 'text-win' : v < 0 ? 'text-loss' : ''),
+    },
     { key: 'kd', label: 'K/D', get: (p) => p.kills / Math.max(1, p.deaths), fmt: (v) => v.toFixed(2), hideSm: true },
     { key: 'adr', label: 'ADR', title: 'Dano médio por round' },
     { key: 'kast', label: 'KAST', fmt: (v) => `${v}%`, hideSm: true },
@@ -67,7 +85,11 @@ function Scoreboard({ team, won, columns, sort, onSort, ownerNick }) {
                   className={`num ${c.hideSm ? 'hide-sm' : ''}`}
                   aria-sort={sort.key === c.key ? (sort.dir === 'desc' ? 'descending' : 'ascending') : undefined}
                 >
-                  <button type="button" className={`sort-btn ${sort.key === c.key ? 'active' : ''}`} onClick={() => onSort(c.key)}>
+                  <button
+                    type="button"
+                    className={`sort-btn ${sort.key === c.key ? 'active' : ''}`}
+                    onClick={() => onSort(c.key)}
+                  >
                     {c.label}
                     {sort.key === c.key && <span aria-hidden="true">{sort.dir === 'desc' ? '↓' : '↑'}</span>}
                   </button>
@@ -91,7 +113,10 @@ function Scoreboard({ team, won, columns, sort, onSort, ownerNick }) {
                 {columns.map((c) => {
                   const v = valueOf(c, p);
                   return (
-                    <td key={c.key} className={`num ${c.hideSm ? 'hide-sm' : ''} ${c.strong ? 'strong' : ''} ${c.cls ? c.cls(v) : ''}`}>
+                    <td
+                      key={c.key}
+                      className={`num ${c.hideSm ? 'hide-sm' : ''} ${c.strong ? 'strong' : ''} ${c.cls ? c.cls(v) : ''}`}
+                    >
                       {c.fmt ? c.fmt(v) : v}
                     </td>
                   );
@@ -198,7 +223,12 @@ export default function MatchDetails() {
     { icon: Star, label: 'MVP', p: top((p) => p.rating), value: (p) => `${p.rating.toFixed(2)} rating` },
     { icon: Crosshair, label: 'Mais kills', p: top((p) => p.kills), value: (p) => `${p.kills} kills` },
     { icon: Flame, label: 'Maior ADR', p: top((p) => p.adr), value: (p) => `${p.adr} ADR` },
-    { icon: Target, label: 'Mais headshots', p: top((p) => p.hs * p.kills), value: (p) => `${Math.round((p.hs * p.kills) / 100)} HS` },
+    {
+      icon: Target,
+      label: 'Mais headshots',
+      p: top((p) => p.hs * p.kills),
+      value: (p) => `${Math.round((p.hs * p.kills) / 100)} HS`,
+    },
   ];
 
   const columns = COLUMNS[tab];
@@ -276,16 +306,42 @@ export default function MatchDetails() {
       <RoundTimeline rounds={match.rounds} teamA={match.teamA.name} teamB={match.teamB.name} />
 
       <div className="tabs" role="tablist" aria-label="Tipo de estatística">
-        <button type="button" role="tab" aria-selected={tab === 'placar'} className={`tab ${tab === 'placar' ? 'active' : ''}`} onClick={() => changeTab('placar')}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'placar'}
+          className={`tab ${tab === 'placar' ? 'active' : ''}`}
+          onClick={() => changeTab('placar')}
+        >
           Placar
         </button>
-        <button type="button" role="tab" aria-selected={tab === 'avancado'} className={`tab ${tab === 'avancado' ? 'active' : ''}`} onClick={() => changeTab('avancado')}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'avancado'}
+          className={`tab ${tab === 'avancado' ? 'active' : ''}`}
+          onClick={() => changeTab('avancado')}
+        >
           Avançado
         </button>
       </div>
 
-      <Scoreboard team={match.teamA} won={match.won} columns={columns} sort={sort} onSort={onSort} ownerNick={match.owner} />
-      <Scoreboard team={match.teamB} won={!match.won} columns={columns} sort={sort} onSort={onSort} ownerNick={match.owner} />
+      <Scoreboard
+        team={match.teamA}
+        won={match.won}
+        columns={columns}
+        sort={sort}
+        onSort={onSort}
+        ownerNick={match.owner}
+      />
+      <Scoreboard
+        team={match.teamB}
+        won={!match.won}
+        columns={columns}
+        sort={sort}
+        onSort={onSort}
+        ownerNick={match.owner}
+      />
     </div>
   );
 }

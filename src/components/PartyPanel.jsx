@@ -25,7 +25,12 @@ export default function PartyPanel({ locked = false, compact = false }) {
               <LogOut size={14} aria-hidden="true" /> Desfazer
             </button>
           )}
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setInviting(true)} disabled={locked || total >= PARTY_MAX}>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => setInviting(true)}
+            disabled={locked || total >= PARTY_MAX}
+          >
             <UserPlus size={14} aria-hidden="true" /> Convidar
           </button>
         </div>
@@ -36,7 +41,13 @@ export default function PartyPanel({ locked = false, compact = false }) {
           const p = slots[i];
           if (!p) {
             return (
-              <button key={`empty-${i}`} type="button" className="party-slot empty" onClick={() => setInviting(true)} disabled={locked}>
+              <button
+                key={`empty-${i}`}
+                type="button"
+                className="party-slot empty"
+                onClick={() => setInviting(true)}
+                disabled={locked}
+              >
                 <Plus size={22} aria-hidden="true" />
                 <span>Convidar</span>
               </button>
@@ -44,9 +55,17 @@ export default function PartyPanel({ locked = false, compact = false }) {
           }
           const leader = i === 0;
           return (
-            <div key={p.nick} className={`party-slot ${leader ? 'leader' : ''} ${p.kind === 'pending' ? 'pending' : ''}`}>
+            <div
+              key={p.nick}
+              className={`party-slot ${leader ? 'leader' : ''} ${p.kind === 'pending' ? 'pending' : ''}`}
+            >
               {!leader && !locked && (
-                <button type="button" className="icon-btn party-kick" onClick={() => kick(p.nick)} aria-label={`Remover ${p.nick}`}>
+                <button
+                  type="button"
+                  className="icon-btn party-kick"
+                  onClick={() => kick(p.nick)}
+                  aria-label={`Remover ${p.nick}`}
+                >
                   <X size={14} />
                 </button>
               )}

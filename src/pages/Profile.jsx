@@ -1,7 +1,23 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  Star, Target, Activity, Flame, Swords, TrendingUp, UserPlus, Crown, Calendar, ChevronRight, Pencil, Check, Crosshair, Gamepad2, Twitch, Instagram, Youtube,
+  Star,
+  Target,
+  Activity,
+  Flame,
+  Swords,
+  TrendingUp,
+  UserPlus,
+  Crown,
+  Calendar,
+  ChevronRight,
+  Pencil,
+  Check,
+  Crosshair,
+  Gamepad2,
+  Twitch,
+  Instagram,
+  Youtube,
 } from 'lucide-react';
 import { getPlayer, getMatchHistory, getEloHistory, getMapStats, ME, FLAGS, MAPS_BY_ID } from '../data/mock';
 import { PUBLIC_TEAMS } from '../data/teams';
@@ -53,11 +69,30 @@ function EloChart({ points }) {
             </linearGradient>
           </defs>
           {[0.25, 0.5, 0.75].map((g) => (
-            <line key={g} x1="0" x2={w} y1={h * g} y2={h * g} stroke="#26262e" strokeDasharray="4 6" vectorEffect="non-scaling-stroke" />
+            <line
+              key={g}
+              x1="0"
+              x2={w}
+              y1={h * g}
+              y2={h * g}
+              stroke="#26262e"
+              strokeDasharray="4 6"
+              vectorEffect="non-scaling-stroke"
+            />
           ))}
           <path d={area} fill="url(#eloFill)" />
           <path d={line} fill="none" stroke="#a78bfa" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
-          {cur && <line x1={x(active)} x2={x(active)} y1="0" y2={h} stroke="#8b5cf6" strokeOpacity="0.5" vectorEffect="non-scaling-stroke" />}
+          {cur && (
+            <line
+              x1={x(active)}
+              x2={x(active)}
+              y1="0"
+              y2={h}
+              stroke="#8b5cf6"
+              strokeOpacity="0.5"
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
         </svg>
 
         {points.map((p, i) => {
@@ -161,7 +196,12 @@ export default function Profile() {
   const p = isMe ? profile : null;
   const banner = p?.banner ?? 'default';
   const bannerProps = MAPS_BY_ID[banner]
-    ? { className: 'profile-banner banner-map', style: { backgroundImage: `linear-gradient(180deg, rgba(13,13,16,0.1), rgba(13,13,16,0.75)), url(/maps/${banner}.jpg)` } }
+    ? {
+        className: 'profile-banner banner-map',
+        style: {
+          backgroundImage: `linear-gradient(180deg, rgba(13,13,16,0.1), rgba(13,13,16,0.75)), url(/maps/${banner}.jpg)`,
+        },
+      }
     : { className: `profile-banner ${banner.startsWith('banner-') ? banner : ''}` };
   const socials = p ? SOCIALS.filter((s) => p.socials[s.key]) : [];
   const playerTeams = isMe ? myTeams : PUBLIC_TEAMS.filter((t) => t.members.some((m) => m.nick === player.nick));
@@ -209,7 +249,9 @@ export default function Profile() {
                 {player.elo} <small>ELO</small>
               </div>
               <Progress value={prog.pct} label="Progresso para o próximo level" />
-              <span className="muted small">{prog.next ? `${prog.toNext} para o level ${prog.next}` : 'Level máximo'}</span>
+              <span className="muted small">
+                {prog.next ? `${prog.toNext} para o level ${prog.next}` : 'Level máximo'}
+              </span>
             </div>
           </div>
           {isMe ? (
@@ -217,7 +259,11 @@ export default function Profile() {
               <Pencil size={16} aria-hidden="true" /> Editar perfil
             </Link>
           ) : (
-            <button type="button" className={`btn ${requested ? 'btn-ghost' : 'btn-primary'}`} onClick={() => setRequested((r) => !r)}>
+            <button
+              type="button"
+              className={`btn ${requested ? 'btn-ghost' : 'btn-primary'}`}
+              onClick={() => setRequested((r) => !r)}
+            >
               {requested ? (
                 <>
                   <Check size={16} aria-hidden="true" /> Pedido enviado
@@ -239,7 +285,14 @@ export default function Profile() {
               </Link>
             ))}
             {socials.map(({ key, label, icon: Icon }) => (
-              <a key={key} href={p.socials[key]} target="_blank" rel="noopener noreferrer" className="social-link" aria-label={`${label} de ${player.nick}`}>
+              <a
+                key={key}
+                href={p.socials[key]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-link"
+                aria-label={`${label} de ${player.nick}`}
+              >
                 <Icon size={15} aria-hidden="true" /> {label}
               </a>
             ))}
@@ -253,7 +306,13 @@ export default function Profile() {
       </section>
 
       <section className="stats-grid stats-grid-6" aria-label="Estatísticas principais (últimas 20 partidas)">
-        <StatCard icon={Star} label="Rating 3.0" value={player.rating.toFixed(2)} valueClass={ratingClass(player.rating)} highlight />
+        <StatCard
+          icon={Star}
+          label="Rating 3.0"
+          value={player.rating.toFixed(2)}
+          valueClass={ratingClass(player.rating)}
+          highlight
+        />
         <StatCard icon={Activity} label="KAST" value={`${player.kast}%`} />
         <StatCard icon={Flame} label="ADR" value={player.adr} />
         <StatCard icon={Swords} label="K/D" value={player.kd.toFixed(2)} />

@@ -61,7 +61,15 @@ export default function ServerBrowser({ type }) {
       })),
     [base, seed],
   );
-  const [f, setF] = useState({ q: '', map: 'all', variant: 'all', region: 'all', hideFull: false, hideEmpty: false, sort: 'ping' });
+  const [f, setF] = useState({
+    q: '',
+    map: 'all',
+    variant: 'all',
+    region: 'all',
+    hideFull: false,
+    hideEmpty: false,
+    sort: 'ping',
+  });
   const [connecting, setConnecting] = useState(null);
 
   const set = (k) => (e) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
@@ -92,7 +100,13 @@ export default function ServerBrowser({ type }) {
         </div>
         <label className="search">
           <Search size={16} aria-hidden="true" />
-          <input type="search" placeholder="Buscar servidor" value={f.q} onChange={set('q')} aria-label="Buscar servidor" />
+          <input
+            type="search"
+            placeholder="Buscar servidor"
+            value={f.q}
+            onChange={set('q')}
+            aria-label="Buscar servidor"
+          />
         </label>
         <select value={f.map} onChange={set('map')} aria-label="Mapa">
           <option value="all">Todos os mapas</option>
@@ -125,7 +139,12 @@ export default function ServerBrowser({ type }) {
         <label className="check">
           <input type="checkbox" checked={f.hideEmpty} onChange={set('hideEmpty')} /> Ocultar vazios
         </label>
-        <button type="button" className="icon-btn" onClick={() => setSeed((s) => s + 1)} aria-label="Atualizar servidores">
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={() => setSeed((s) => s + 1)}
+          aria-label="Atualizar servidores"
+        >
           <RefreshCw size={16} />
         </button>
       </div>
@@ -137,7 +156,9 @@ export default function ServerBrowser({ type }) {
               <th scope="col">Mapa</th>
               <th scope="col">Servidor</th>
               <th scope="col">Jogadores</th>
-              <th scope="col" className="hide-sm">Região</th>
+              <th scope="col" className="hide-sm">
+                Região
+              </th>
               <th scope="col">Ping</th>
               <th scope="col">
                 <span className="sr-only">Ação</span>
@@ -177,7 +198,12 @@ export default function ServerBrowser({ type }) {
                     </span>
                   </td>
                   <td className="td-action">
-                    <button type="button" className="btn btn-primary btn-sm" disabled={full} onClick={() => setConnecting(s)}>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      disabled={full}
+                      onClick={() => setConnecting(s)}
+                    >
                       {full ? 'Cheio' : 'Entrar'}
                     </button>
                   </td>

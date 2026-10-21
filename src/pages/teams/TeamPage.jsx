@@ -7,7 +7,6 @@ import { useTeams, memberNick, resolveMember } from '../../context/TeamsContext'
 import { ratingClass } from '../../utils/levels';
 import { Avatar, LevelBadge, MapThumb, Modal, TeamLogo, Nick } from '../../components/ui';
 import TeamForm from './TeamForm';
-import '../../styles/teams.css';
 
 function InviteToTeamModal({ team, onClose }) {
   const { inviteToTeam } = useTeams();
@@ -20,11 +19,18 @@ function InviteToTeamModal({ team, onClose }) {
   return (
     <Modal title={`Convidar para ${team.name}`} onClose={onClose}>
       <p className="muted small modal-sub">
-        {team.members.length + invited.size}/{TEAM_MAX} vagas ocupadas. Amigos offline recebem o convite quando entrarem.
+        {team.members.length + invited.size}/{TEAM_MAX} vagas ocupadas. Amigos offline recebem o convite quando
+        entrarem.
       </p>
       <label className="search search-block">
         <Search size={16} aria-hidden="true" />
-        <input type="search" placeholder="Buscar amigo" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar amigo" />
+        <input
+          type="search"
+          placeholder="Buscar amigo"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          aria-label="Buscar amigo"
+        />
       </label>
       <ul className="invite-list">
         {list.map((f) => {
@@ -40,7 +46,12 @@ function InviteToTeamModal({ team, onClose }) {
                 </span>
               </div>
               <LevelBadge level={f.level} size={28} />
-              <button type="button" className={`btn btn-sm ${disabled ? 'btn-ghost' : 'btn-primary'}`} disabled={disabled} onClick={() => inviteToTeam(team.id, f)}>
+              <button
+                type="button"
+                className={`btn btn-sm ${disabled ? 'btn-ghost' : 'btn-primary'}`}
+                disabled={disabled}
+                onClick={() => inviteToTeam(team.id, f)}
+              >
                 {label}
               </button>
             </li>
@@ -70,7 +81,18 @@ function Confirm({ title, text, confirmLabel, onConfirm, onClose }) {
 export default function TeamPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getTeam, isMember, myRole, requests, requestJoin, cancelRequest, setRole, removeMember, editTeam, leaveTeam } = useTeams();
+  const {
+    getTeam,
+    isMember,
+    myRole,
+    requests,
+    requestJoin,
+    cancelRequest,
+    setRole,
+    removeMember,
+    editTeam,
+    leaveTeam,
+  } = useTeams();
   const team = getTeam(id);
   const [tab, setTab] = useState('elenco');
   const [modal, setModal] = useState(null); // invite | leave | disband | { remove: nick }
@@ -143,7 +165,12 @@ export default function TeamPage() {
             {member ? (
               <>
                 {captain && (
-                  <button type="button" className="btn btn-primary" onClick={() => setModal('invite')} disabled={team.members.length >= TEAM_MAX}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setModal('invite')}
+                    disabled={team.members.length >= TEAM_MAX}
+                  >
                     <UserPlus size={16} aria-hidden="true" /> Convidar
                   </button>
                 )}
@@ -169,7 +196,13 @@ export default function TeamPage() {
                 disabled={!team.recruiting || !levelOk || team.members.length >= TEAM_MAX}
               >
                 <UserPlus size={16} aria-hidden="true" />
-                {!team.recruiting ? 'Não está recrutando' : !levelOk ? `Requer level ${team.minLevel}` : team.members.length >= TEAM_MAX ? 'Time cheio' : 'Solicitar entrada'}
+                {!team.recruiting
+                  ? 'Não está recrutando'
+                  : !levelOk
+                    ? `Requer level ${team.minLevel}`
+                    : team.members.length >= TEAM_MAX
+                      ? 'Time cheio'
+                      : 'Solicitar entrada'}
               </button>
             )}
           </div>
@@ -207,7 +240,14 @@ export default function TeamPage() {
 
       <div className="tabs" role="tablist" aria-label="Seções do time">
         {tabs.map((t) => (
-          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`tab ${tab === t.id ? 'active' : ''}`}
+            onClick={() => setTab(t.id)}
+          >
             {t.label}
           </button>
         ))}
@@ -222,8 +262,12 @@ export default function TeamPage() {
                 <th scope="col">Função</th>
                 <th scope="col">Level</th>
                 <th scope="col">ELO</th>
-                <th scope="col" className="hide-sm">Rating</th>
-                <th scope="col" className="hide-sm">KAST</th>
+                <th scope="col" className="hide-sm">
+                  Rating
+                </th>
+                <th scope="col" className="hide-sm">
+                  KAST
+                </th>
                 {captain && (
                   <th scope="col">
                     <span className="sr-only">Ações</span>
@@ -245,7 +289,12 @@ export default function TeamPage() {
                   </td>
                   <td>
                     {captain && !m.me ? (
-                      <select value={m.role} onChange={(e) => setRole(team.id, m.nick, e.target.value)} aria-label={`Função de ${m.nick}`} className="select-sm">
+                      <select
+                        value={m.role}
+                        onChange={(e) => setRole(team.id, m.nick, e.target.value)}
+                        aria-label={`Função de ${m.nick}`}
+                        className="select-sm"
+                      >
                         {TEAM_ROLES.map((r) => (
                           <option key={r}>{r}</option>
                         ))}
@@ -263,7 +312,12 @@ export default function TeamPage() {
                   {captain && (
                     <td className="td-action">
                       {!m.me && (
-                        <button type="button" className="icon-btn" onClick={() => setModal({ remove: m.nick })} aria-label={`Remover ${m.nick} do time`}>
+                        <button
+                          type="button"
+                          className="icon-btn"
+                          onClick={() => setModal({ remove: m.nick })}
+                          aria-label={`Remover ${m.nick} do time`}
+                        >
                           <X size={14} />
                         </button>
                       )}
@@ -358,7 +412,13 @@ export default function TeamPage() {
 
       {modal === 'invite' && <InviteToTeamModal team={team} onClose={() => setModal(null)} />}
       {modal === 'leave' && (
-        <Confirm title="Sair do time" text={`Tem certeza que quer sair do ${team.name}?`} confirmLabel="Sair do time" onConfirm={doLeave} onClose={() => setModal(null)} />
+        <Confirm
+          title="Sair do time"
+          text={`Tem certeza que quer sair do ${team.name}?`}
+          confirmLabel="Sair do time"
+          onConfirm={doLeave}
+          onClose={() => setModal(null)}
+        />
       )}
       {modal === 'disband' && (
         <Confirm

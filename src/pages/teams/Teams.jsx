@@ -6,7 +6,6 @@ import { PUBLIC_TEAMS, TEAM_MAX, teamStats } from '../../data/teams';
 import { useTeams, resolveMember, MY_TEAMS_LIMIT } from '../../context/TeamsContext';
 import { Modal, TeamLogo } from '../../components/ui';
 import TeamForm from './TeamForm';
-import '../../styles/teams.css';
 
 function TeamCard({ team, role, requested }) {
   const { avgElo, winRate } = teamStats(team, resolveMember);
@@ -72,14 +71,23 @@ export default function Teams() {
           <span className="eyebrow">Comunidade</span>
           <h1>Times</h1>
         </div>
-        <button type="button" className="btn btn-primary" onClick={() => setCreating(true)} disabled={limitReached} title={limitReached ? `Limite de ${MY_TEAMS_LIMIT} times` : undefined}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setCreating(true)}
+          disabled={limitReached}
+          title={limitReached ? `Limite de ${MY_TEAMS_LIMIT} times` : undefined}
+        >
           <Plus size={16} aria-hidden="true" /> Criar time
         </button>
       </header>
 
       <section aria-labelledby="my-teams-title" className="stack">
         <h2 id="my-teams-title" className="section-title">
-          Meus times <span className="muted">({myTeams.length}/{MY_TEAMS_LIMIT})</span>
+          Meus times{' '}
+          <span className="muted">
+            ({myTeams.length}/{MY_TEAMS_LIMIT})
+          </span>
         </h2>
         {myTeams.length ? (
           <div className="team-grid">
@@ -92,7 +100,9 @@ export default function Teams() {
             <Shield size={32} aria-hidden="true" className="accent" />
             <div>
               <strong>Você ainda não tem time</strong>
-              <p className="muted small">Crie o seu, chame os amigos e dispute campeonatos juntos. Ou peça para entrar em um time abaixo.</p>
+              <p className="muted small">
+                Crie o seu, chame os amigos e dispute campeonatos juntos. Ou peça para entrar em um time abaixo.
+              </p>
             </div>
             <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
               <Plus size={16} aria-hidden="true" /> Criar meu time
@@ -106,7 +116,13 @@ export default function Teams() {
           <h2 id="explore-title">Explorar times</h2>
           <label className="search">
             <Search size={16} aria-hidden="true" />
-            <input type="search" placeholder="Nome ou tag" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar time" />
+            <input
+              type="search"
+              placeholder="Nome ou tag"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              aria-label="Buscar time"
+            />
           </label>
           <select value={region} onChange={(e) => setRegion(e.target.value)} aria-label="Região">
             <option value="all">Todas as regiões</option>
@@ -115,7 +131,8 @@ export default function Teams() {
             ))}
           </select>
           <label className="check">
-            <input type="checkbox" checked={onlyRecruiting} onChange={(e) => setOnlyRecruiting(e.target.checked)} /> Só recrutando
+            <input type="checkbox" checked={onlyRecruiting} onChange={(e) => setOnlyRecruiting(e.target.checked)} /> Só
+            recrutando
           </label>
         </div>
         <div className="team-grid">
@@ -128,7 +145,9 @@ export default function Teams() {
 
       {creating && (
         <Modal title="Criar time" onClose={() => setCreating(false)} wide>
-          <p className="muted small modal-sub">Você será o capitão. Dá para mudar tudo depois nas configurações do time, {ME.nick}.</p>
+          <p className="muted small modal-sub">
+            Você será o capitão. Dá para mudar tudo depois nas configurações do time, {ME.nick}.
+          </p>
           <TeamForm submitLabel="Criar time" onSubmit={create} onCancel={() => setCreating(false)} />
         </Modal>
       )}

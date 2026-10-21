@@ -84,17 +84,25 @@ export function TeamsProvider({ children }) {
       later(() => {
         try {
           joinPublicTeam(teamId);
-          notify({ type: 'team', title: 'Solicitação aceita', body: `Você agora faz parte do ${team.name}.`, link: `/times/${teamId}` });
+          notify({
+            type: 'team',
+            title: 'Solicitação aceita',
+            body: `Você agora faz parte do ${team.name}.`,
+            link: `/times/${teamId}`,
+          });
         } catch (e) {
           notify({ type: 'team', title: 'Não foi possível entrar', body: e.message, link: '/times' });
         }
       }, 3500);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [state.requests, setState, joinPublicTeam, notify],
   );
 
-  const cancelRequest = useCallback((teamId) => setState((s) => ({ ...s, requests: s.requests.filter((r) => r !== teamId) })), [setState]);
+  const cancelRequest = useCallback(
+    (teamId) => setState((s) => ({ ...s, requests: s.requests.filter((r) => r !== teamId) })),
+    [setState],
+  );
 
   // Convite para amigo: aceita automaticamente (mock)
   const inviteToTeam = useCallback(
@@ -102,16 +110,24 @@ export function TeamsProvider({ children }) {
       const team = getTeam(teamId);
       if (!team || team.members.length + (team.invites?.length ?? 0) >= TEAM_MAX) return;
       update(teamId, (t) => ({ ...t, invites: [...(t.invites ?? []), friend.nick] }));
-      later(() => {
-        update(teamId, (t) => ({
-          ...t,
-          invites: (t.invites ?? []).filter((n) => n !== friend.nick),
-          members: t.members.length < TEAM_MAX ? [...t.members, { nick: friend.nick, role: 'Jogador' }] : t.members,
-        }));
-        notify({ type: 'team', title: 'Novo membro', body: `${friend.nick} aceitou o convite e entrou no ${team.name}.`, link: `/times/${teamId}` });
-      }, 1800 + Math.random() * 1500);
+      later(
+        () => {
+          update(teamId, (t) => ({
+            ...t,
+            invites: (t.invites ?? []).filter((n) => n !== friend.nick),
+            members: t.members.length < TEAM_MAX ? [...t.members, { nick: friend.nick, role: 'Jogador' }] : t.members,
+          }));
+          notify({
+            type: 'team',
+            title: 'Novo membro',
+            body: `${friend.nick} aceitou o convite e entrou no ${team.name}.`,
+            link: `/times/${teamId}`,
+          });
+        },
+        1800 + Math.random() * 1500,
+      );
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [getTeam, update, notify],
   );
 
@@ -136,7 +152,12 @@ export function TeamsProvider({ children }) {
   const editTeam = useCallback((teamId, data) => update(teamId, (t) => ({ ...t, ...data })), [update]);
 
   const leaveTeam = useCallback(
-    (teamId) => setState((s) => ({ ...s, mine: s.mine.filter((t) => t.id !== teamId), joined: s.joined.filter((t) => t.id !== teamId) })),
+    (teamId) =>
+      setState((s) => ({
+        ...s,
+        mine: s.mine.filter((t) => t.id !== teamId),
+        joined: s.joined.filter((t) => t.id !== teamId),
+      })),
     [setState],
   );
 
@@ -159,7 +180,23 @@ export function TeamsProvider({ children }) {
       leaveTeam,
       disbandTeam: leaveTeam,
     }),
-    [myTeams, allTeams, state.requests, getTeam, isMember, myRole, createTeam, joinPublicTeam, requestJoin, cancelRequest, inviteToTeam, setRole, removeMember, editTeam, leaveTeam],
+    [
+      myTeams,
+      allTeams,
+      state.requests,
+      getTeam,
+      isMember,
+      myRole,
+      createTeam,
+      joinPublicTeam,
+      requestJoin,
+      cancelRequest,
+      inviteToTeam,
+      setRole,
+      removeMember,
+      editTeam,
+      leaveTeam,
+    ],
   );
 
   return <TeamsCtx.Provider value={value}>{children}</TeamsCtx.Provider>;

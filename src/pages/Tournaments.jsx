@@ -50,7 +50,9 @@ export default function Tournaments() {
             <article key={t.id} className="card tournament">
               <div
                 className="tournament-banner"
-                style={{ backgroundImage: `linear-gradient(135deg, ${t.colors[0]}d9, ${t.colors[1]}b3), url(/maps/${t.map}.jpg)` }}
+                style={{
+                  backgroundImage: `linear-gradient(135deg, ${t.colors[0]}d9, ${t.colors[1]}b3), url(/maps/${t.map}.jpg)`,
+                }}
               >
                 <span className={`status-chip ${t.status}`}>{STATUS_LABEL[t.status]}</span>
                 <Trophy size={40} aria-hidden="true" className="tournament-trophy" />
@@ -82,9 +84,7 @@ export default function Tournaments() {
                     type="button"
                     className={`btn btn-block ${isJoined ? 'btn-ghost' : 'btn-primary'}`}
                     disabled={(full || locked) && !isJoined}
-                    onClick={() =>
-                      setJoined((j) => (isJoined ? j.filter((x) => x !== t.id) : [...j, t.id]))
-                    }
+                    onClick={() => setJoined((j) => (isJoined ? j.filter((x) => x !== t.id) : [...j, t.id]))}
                   >
                     {locked ? (
                       <>

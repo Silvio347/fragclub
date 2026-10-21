@@ -1,5 +1,22 @@
+import { Suspense } from 'react';
 import { NavLink, Link, Outlet, useNavigate } from 'react-router-dom';
-import { Home, Crosshair, Trophy, Medal, User, Search, Crown, X, LogOut, Users, History, Shield, ShoppingBag, Coins } from 'lucide-react';
+import PageLoader from './PageLoader';
+import {
+  Home,
+  Crosshair,
+  Trophy,
+  Medal,
+  User,
+  Search,
+  Crown,
+  X,
+  LogOut,
+  Users,
+  History,
+  Shield,
+  ShoppingBag,
+  Coins,
+} from 'lucide-react';
 import { ME } from '../data/mock';
 import { useQueue } from '../context/QueueContext';
 import { useAuth } from '../context/AuthContext';
@@ -131,7 +148,10 @@ export default function Layout() {
       <div className="main">
         <Topbar />
         <main className="content">
-          <Outlet />
+          {/* Suspense aqui mantém sidebar/topo visíveis enquanto a página carrega */}
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
       <MatchFoundModal />

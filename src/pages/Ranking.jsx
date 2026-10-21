@@ -85,10 +85,18 @@ export default function Ranking() {
               <th scope="col">Level</th>
               <th scope="col">{tab === 'weekly' ? 'Ganho' : 'ELO'}</th>
               <th scope="col">Rating 3.0</th>
-              <th scope="col" className="hide-sm">KAST</th>
-              <th scope="col" className="hide-sm">ADR</th>
-              <th scope="col" className="hide-sm">K/D</th>
-              <th scope="col" className="hide-sm">Vitórias</th>
+              <th scope="col" className="hide-sm">
+                KAST
+              </th>
+              <th scope="col" className="hide-sm">
+                ADR
+              </th>
+              <th scope="col" className="hide-sm">
+                K/D
+              </th>
+              <th scope="col" className="hide-sm">
+                Vitórias
+              </th>
             </tr>
           </thead>
           <tbody>

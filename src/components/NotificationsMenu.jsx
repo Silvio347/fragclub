@@ -116,7 +116,12 @@ export default function NotificationsMenu() {
                   </div>
                   <div className="notif-side">
                     <span className="muted small">{timeAgo(n.createdAt)}</span>
-                    <button type="button" className="notif-remove" onClick={() => remove(n.id)} aria-label={`Remover notificação: ${n.title}`}>
+                    <button
+                      type="button"
+                      className="notif-remove"
+                      onClick={() => remove(n.id)}
+                      aria-label={`Remover notificação: ${n.title}`}
+                    >
                       <X size={12} />
                     </button>
                   </div>

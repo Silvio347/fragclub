@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Coins, Gift, Search, Crown, Check, Lock, Package, Sparkles, Truck, Loader2 } from 'lucide-react';
-import { SKINS, COSMETICS, PREMIUM_ITEMS, RARITIES, WEAR, WEAPON_TYPES, EARN_RULES, SEASON, ITEMS_BY_ID } from '../data/catalog';
+import {
+  SKINS,
+  COSMETICS,
+  PREMIUM_ITEMS,
+  RARITIES,
+  WEAR,
+  WEAPON_TYPES,
+  EARN_RULES,
+  SEASON,
+  ITEMS_BY_ID,
+} from '../data/catalog';
 import { ME } from '../data/mock';
 import { useShop } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { Modal, Progress } from '../components/ui';
-import '../styles/shop.css';
 
 const TABS = [
   { id: 'skins', label: 'Skins' },
@@ -21,7 +30,16 @@ const fp = (n) => n.toLocaleString('pt-BR');
 function CosmeticPreview({ item }) {
   if (item.kind === 'frame') {
     return (
-      <span className={`avatar ${item.id}`} style={{ width: 64, height: 64, fontSize: 24, background: 'linear-gradient(135deg, hsl(265 40% 40%), hsl(305 40% 20%))' }} aria-hidden="true">
+      <span
+        className={`avatar ${item.id}`}
+        style={{
+          width: 64,
+          height: 64,
+          fontSize: 24,
+          background: 'linear-gradient(135deg, hsl(265 40% 40%), hsl(305 40% 20%))',
+        }}
+        aria-hidden="true"
+      >
         {ME.nick.slice(0, 2).toUpperCase()}
       </span>
     );
@@ -42,7 +60,11 @@ function ItemCard({ item, onBuy }) {
   return (
     <article className={`card shop-item kind-${item.kind}`} style={rarity ? { '--rarity': rarity.color } : undefined}>
       <div className="shop-item-media">
-        {item.kind === 'skin' ? <img src={item.image} alt="" loading="lazy" width="180" height="135" /> : <CosmeticPreview item={item} />}
+        {item.kind === 'skin' ? (
+          <img src={item.image} alt="" loading="lazy" width="180" height="135" />
+        ) : (
+          <CosmeticPreview item={item} />
+        )}
         {left !== null && left <= 5 && left > 0 && <span className="stock-tag">Restam {left}</span>}
       </div>
       <div className="shop-item-body">
@@ -64,7 +86,13 @@ function ItemCard({ item, onBuy }) {
           ) : left === 0 ? (
             <span className="tag">Esgotado</span>
           ) : (
-            <button type="button" className="btn btn-primary btn-sm" disabled={missing > 0} onClick={() => onBuy(item)} title={missing > 0 ? `Faltam ${fp(missing)} FP` : undefined}>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              disabled={missing > 0}
+              onClick={() => onBuy(item)}
+              title={missing > 0 ? `Faltam ${fp(missing)} FP` : undefined}
+            >
               {missing > 0 ? (
                 <>
                   <Lock size={13} aria-hidden="true" /> {fp(missing)} FP
@@ -99,10 +127,17 @@ function BuyModal({ item, onClose }) {
   };
 
   return (
-    <Modal title={state === 'done' ? 'Compra concluída' : 'Confirmar compra'} onClose={state === 'loading' ? undefined : onClose}>
+    <Modal
+      title={state === 'done' ? 'Compra concluída' : 'Confirmar compra'}
+      onClose={state === 'loading' ? undefined : onClose}
+    >
       <div className="buy-modal">
         <div className="buy-item">
-          {item.kind === 'skin' ? <img src={item.image} alt="" width="120" height="90" /> : <CosmeticPreview item={item} />}
+          {item.kind === 'skin' ? (
+            <img src={item.image} alt="" width="120" height="90" />
+          ) : (
+            <CosmeticPreview item={item} />
+          )}
           <div>
             <strong>{item.name}</strong>
             <span className="price">
@@ -184,8 +219,18 @@ function Inventory() {
         const isCosmetic = item.kind === 'frame' || item.kind === 'nick';
         const equippedNow = isCosmetic && equipped[item.kind] === item.id;
         return (
-          <li key={inv.uid} className="card inv-row" style={item.rarity ? { '--rarity': RARITIES[item.rarity].color } : undefined}>
-            <div className="inv-media">{item.kind === 'skin' ? <img src={item.image} alt="" width="96" height="72" /> : <CosmeticPreview item={item} />}</div>
+          <li
+            key={inv.uid}
+            className="card inv-row"
+            style={item.rarity ? { '--rarity': RARITIES[item.rarity].color } : undefined}
+          >
+            <div className="inv-media">
+              {item.kind === 'skin' ? (
+                <img src={item.image} alt="" width="96" height="72" />
+              ) : (
+                <CosmeticPreview item={item} />
+              )}
+            </div>
             <div className="inv-info">
               <strong>{item.name}</strong>
               <span className="muted small">Comprado em {new Date(inv.boughtAt).toLocaleDateString('pt-BR')}</span>
@@ -199,7 +244,11 @@ function Inventory() {
                     <Truck size={14} aria-hidden="true" /> Resgatar na Steam
                   </button>
                 ) : (
-                  <Link to="/perfil/editar" className="btn btn-ghost btn-sm" title="Cadastre seu link de troca para resgatar">
+                  <Link
+                    to="/perfil/editar"
+                    className="btn btn-ghost btn-sm"
+                    title="Cadastre seu link de troca para resgatar"
+                  >
                     <Lock size={14} aria-hidden="true" /> Cadastrar link de troca
                   </Link>
                 ))}
@@ -212,7 +261,12 @@ function Inventory() {
                   <span className="tag">Ativado</span>
                 ))}
               {isCosmetic && (
-                <button type="button" className={`btn btn-sm ${equippedNow ? 'btn-primary' : 'btn-ghost'}`} onClick={() => toggleEquip(item.id)} aria-pressed={equippedNow}>
+                <button
+                  type="button"
+                  className={`btn btn-sm ${equippedNow ? 'btn-primary' : 'btn-ghost'}`}
+                  onClick={() => toggleEquip(item.id)}
+                  aria-pressed={equippedNow}
+                >
                   {equippedNow ? (
                     <>
                       <Check size={14} aria-hidden="true" /> Equipado
@@ -249,7 +303,12 @@ export default function Shop() {
   const tierXp = seasonXp % SEASON.xpPerTier;
 
   const skins = useMemo(() => {
-    const list = SKINS.filter((s) => (type === 'all' || s.type === type) && s.name.toLowerCase().includes(q.toLowerCase()) && (!affordable || s.price <= points));
+    const list = SKINS.filter(
+      (s) =>
+        (type === 'all' || s.type === type) &&
+        s.name.toLowerCase().includes(q.toLowerCase()) &&
+        (!affordable || s.price <= points),
+    );
     return [...list].sort((a, b) => (sort === 'price-asc' ? a.price - b.price : b.price - a.price));
   }, [type, q, sort, affordable, points]);
 
@@ -271,7 +330,8 @@ export default function Shop() {
             <Coins size={26} aria-hidden="true" /> {fp(points)} <small>FP</small>
           </strong>
           <button type="button" className="btn btn-primary btn-sm" onClick={claimDaily} disabled={!dailyAvailable}>
-            <Gift size={14} aria-hidden="true" /> {dailyAvailable ? 'Coletar +100 FP diários' : 'Diária coletada · volte amanhã'}
+            <Gift size={14} aria-hidden="true" />{' '}
+            {dailyAvailable ? 'Coletar +100 FP diários' : 'Diária coletada · volte amanhã'}
           </button>
         </div>
         <div className="card shop-season">
@@ -301,7 +361,14 @@ export default function Shop() {
 
       <div className="tabs" role="tablist" aria-label="Seções da loja">
         {TABS.map((t) => (
-          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className={`tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`tab ${tab === t.id ? 'active' : ''}`}
+            onClick={() => setTab(t.id)}
+          >
             {t.label}
             {t.id === 'inventario' && inventory.length > 0 && ` (${inventory.length})`}
           </button>
@@ -313,21 +380,35 @@ export default function Shop() {
           <div className="toolbar">
             <div className="chips" role="radiogroup" aria-label="Tipo de arma">
               {WEAPON_TYPES.map((w) => (
-                <button key={w.id} type="button" role="radio" aria-checked={type === w.id} className={`chip ${type === w.id ? 'active' : ''}`} onClick={() => setType(w.id)}>
+                <button
+                  key={w.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={type === w.id}
+                  className={`chip ${type === w.id ? 'active' : ''}`}
+                  onClick={() => setType(w.id)}
+                >
                   {w.label}
                 </button>
               ))}
             </div>
             <label className="search">
               <Search size={16} aria-hidden="true" />
-              <input type="search" placeholder="Buscar skin" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar skin" />
+              <input
+                type="search"
+                placeholder="Buscar skin"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                aria-label="Buscar skin"
+              />
             </label>
             <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Ordenar">
               <option value="price-asc">Menor preço</option>
               <option value="price-desc">Maior preço</option>
             </select>
             <label className="check">
-              <input type="checkbox" checked={affordable} onChange={(e) => setAffordable(e.target.checked)} /> Só o que posso comprar
+              <input type="checkbox" checked={affordable} onChange={(e) => setAffordable(e.target.checked)} /> Só o que
+              posso comprar
             </label>
           </div>
           <div className="shop-grid">
@@ -336,7 +417,9 @@ export default function Shop() {
             ))}
             {skins.length === 0 && <p className="muted empty-state">Nenhuma skin com esses filtros.</p>}
           </div>
-          <p className="muted small">Skins são enviadas por oferta de troca da Steam para o link cadastrado no seu perfil.</p>
+          <p className="muted small">
+            Skins são enviadas por oferta de troca da Steam para o link cadastrado no seu perfil.
+          </p>
         </>
       )}
 

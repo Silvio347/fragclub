@@ -21,7 +21,13 @@ export default function InviteModal({ onClose }) {
       </p>
       <label className="search search-block">
         <Search size={16} aria-hidden="true" />
-        <input type="search" placeholder="Buscar amigo" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar amigo" />
+        <input
+          type="search"
+          placeholder="Buscar amigo"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          aria-label="Buscar amigo"
+        />
       </label>
       <ul className="invite-list">
         {list.map((f) => {

@@ -8,7 +8,6 @@ import { useShop } from '../context/ShopContext';
 import { Nick } from '../components/ui';
 import { hashString } from '../utils/random';
 import { SOCIALS } from './Profile';
-import '../styles/edit-profile.css';
 
 const NICK_RE = /^[a-zA-Z0-9_.-]{3,16}$/;
 const TRADE_RE = /^https:\/\/steamcommunity\.com\/tradeoffer\/new\/\?partner=\d+&token=[\w-]+$/;
@@ -51,9 +50,13 @@ export default function EditProfile() {
       const v = form.socials[key];
       if (v && !/^https:\/\/[^\s]+\.[^\s]+/.test(v)) e[`social-${key}`] = 'Use um link completo começando com https://';
     });
-    if (form.socials.steam && !form.socials.steam.startsWith('https://steamcommunity.com/')) e['social-steam'] = 'O link precisa ser do steamcommunity.com.';
-    if (form.tradeUrl && !TRADE_RE.test(form.tradeUrl)) e.tradeUrl = 'Link de troca inválido. Copie em Steam > Inventário > Ofertas de troca > Quem pode me enviar ofertas.';
-    if (form.crosshair && !CROSSHAIR_RE.test(form.crosshair)) e.crosshair = 'Código de mira inválido (formato CSGO-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX).';
+    if (form.socials.steam && !form.socials.steam.startsWith('https://steamcommunity.com/'))
+      e['social-steam'] = 'O link precisa ser do steamcommunity.com.';
+    if (form.tradeUrl && !TRADE_RE.test(form.tradeUrl))
+      e.tradeUrl =
+        'Link de troca inválido. Copie em Steam > Inventário > Ofertas de troca > Quem pode me enviar ofertas.';
+    if (form.crosshair && !CROSSHAIR_RE.test(form.crosshair))
+      e.crosshair = 'Código de mira inválido (formato CSGO-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX).';
     return e;
   };
 
@@ -81,7 +84,10 @@ export default function EditProfile() {
         {errors[k]}
       </span>
     );
-  const aria = (k) => ({ 'aria-invalid': !!errors[k] || undefined, 'aria-describedby': errors[k] ? `ep-${k}-err` : undefined });
+  const aria = (k) => ({
+    'aria-invalid': !!errors[k] || undefined,
+    'aria-describedby': errors[k] ? `ep-${k}-err` : undefined,
+  });
 
   return (
     <div className="page stack edit-profile">
@@ -101,14 +107,30 @@ export default function EditProfile() {
             <h2>Identidade</h2>
             <div className="field">
               <label htmlFor="ep-nick">Nick</label>
-              <input id="ep-nick" className="input" value={form.nick} onChange={set('nick')} maxLength={16} {...aria('nick')} />
+              <input
+                id="ep-nick"
+                className="input"
+                value={form.nick}
+                onChange={set('nick')}
+                maxLength={16}
+                {...aria('nick')}
+              />
               {fieldErr('nick')}
             </div>
             <div className="field">
               <label htmlFor="ep-bio">
                 Bio <span className="muted small">({form.bio.length}/160)</span>
               </label>
-              <textarea id="ep-bio" className="input textarea" rows={3} maxLength={160} value={form.bio} onChange={set('bio')} placeholder="Função, mapas favoritos, horário que joga..." {...aria('bio')} />
+              <textarea
+                id="ep-bio"
+                className="input textarea"
+                rows={3}
+                maxLength={160}
+                value={form.bio}
+                onChange={set('bio')}
+                placeholder="Função, mapas favoritos, horário que joga..."
+                {...aria('bio')}
+              />
               {fieldErr('bio')}
             </div>
             <div className="field">
@@ -132,9 +154,19 @@ export default function EditProfile() {
                   <label
                     key={String(h)}
                     className={`hue-swatch ${form.avatarHue === h ? 'active' : ''}`}
-                    style={h === null ? undefined : { background: `linear-gradient(135deg, hsl(${h} 40% 40%), hsl(${(h + 40) % 360} 40% 20%))` }}
+                    style={
+                      h === null
+                        ? undefined
+                        : { background: `linear-gradient(135deg, hsl(${h} 40% 40%), hsl(${(h + 40) % 360} 40% 20%))` }
+                    }
                   >
-                    <input type="radio" name="hue" checked={form.avatarHue === h} onChange={() => setForm({ ...form, avatarHue: h })} aria-label={h === null ? 'Automática' : `Tom ${h}`} />
+                    <input
+                      type="radio"
+                      name="hue"
+                      checked={form.avatarHue === h}
+                      onChange={() => setForm({ ...form, avatarHue: h })}
+                      aria-label={h === null ? 'Automática' : `Tom ${h}`}
+                    />
                     {h === null && <span className="small">Auto</span>}
                   </label>
                 ))}
@@ -145,9 +177,20 @@ export default function EditProfile() {
               <legend>Banner do perfil</legend>
               <div className="banner-options">
                 {banners.map((b) => (
-                  <label key={b} className={`banner-option ${b.startsWith('banner-') ? b : ''} ${b === 'default' ? 'banner-default' : ''} ${form.banner === b ? 'active' : ''}`} style={bannerStyle(b)}>
-                    <input type="radio" name="banner" checked={form.banner === b} onChange={() => setForm({ ...form, banner: b })} />
-                    <span>{b === 'default' ? 'Padrão' : MAPS_BY_ID[b]?.name ?? COSMETICS.find((c) => c.id === b)?.name}</span>
+                  <label
+                    key={b}
+                    className={`banner-option ${b.startsWith('banner-') ? b : ''} ${b === 'default' ? 'banner-default' : ''} ${form.banner === b ? 'active' : ''}`}
+                    style={bannerStyle(b)}
+                  >
+                    <input
+                      type="radio"
+                      name="banner"
+                      checked={form.banner === b}
+                      onChange={() => setForm({ ...form, banner: b })}
+                    />
+                    <span>
+                      {b === 'default' ? 'Padrão' : (MAPS_BY_ID[b]?.name ?? COSMETICS.find((c) => c.id === b)?.name)}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -163,7 +206,13 @@ export default function EditProfile() {
                   {ownedCosmetics.map((c) => {
                     const on = equipped[c.kind] === c.id;
                     return (
-                      <button key={c.id} type="button" className={`btn btn-sm ${on ? 'btn-primary' : 'btn-ghost'}`} onClick={() => toggleEquip(c.id)} aria-pressed={on}>
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={`btn btn-sm ${on ? 'btn-primary' : 'btn-ghost'}`}
+                        onClick={() => toggleEquip(c.id)}
+                        aria-pressed={on}
+                      >
                         {on && <Check size={14} aria-hidden="true" />} {c.name}
                       </button>
                     );
@@ -184,7 +233,16 @@ export default function EditProfile() {
                 <label htmlFor={`ep-social-${key}`} className="row gap-xs">
                   <Icon size={14} aria-hidden="true" /> {label}
                 </label>
-                <input id={`ep-social-${key}`} className="input" type="url" inputMode="url" value={form.socials[key]} onChange={setSocial(key)} placeholder={SOCIAL_HINT[key]} {...aria(`social-${key}`)} />
+                <input
+                  id={`ep-social-${key}`}
+                  className="input"
+                  type="url"
+                  inputMode="url"
+                  value={form.socials[key]}
+                  onChange={setSocial(key)}
+                  placeholder={SOCIAL_HINT[key]}
+                  {...aria(`social-${key}`)}
+                />
                 {fieldErr(`social-${key}`)}
               </div>
             ))}
@@ -194,24 +252,43 @@ export default function EditProfile() {
             <h2>CS2</h2>
             <div className="field">
               <label htmlFor="ep-crosshair">Código da mira</label>
-              <input id="ep-crosshair" className="input mono" value={form.crosshair} onChange={(e) => setForm({ ...form, crosshair: e.target.value.trim() })} placeholder="CSGO-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" {...aria('crosshair')} />
+              <input
+                id="ep-crosshair"
+                className="input mono"
+                value={form.crosshair}
+                onChange={(e) => setForm({ ...form, crosshair: e.target.value.trim() })}
+                placeholder="CSGO-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+                {...aria('crosshair')}
+              />
               {fieldErr('crosshair')}
             </div>
             <div className="field">
               <label htmlFor="ep-tradeUrl">Link de troca da Steam</label>
-              <input id="ep-tradeUrl" className="input mono" type="url" value={form.tradeUrl} onChange={(e) => setForm({ ...form, tradeUrl: e.target.value.trim() })} placeholder="https://steamcommunity.com/tradeoffer/new/?partner=...&token=..." {...aria('tradeUrl')} />
+              <input
+                id="ep-tradeUrl"
+                className="input mono"
+                type="url"
+                value={form.tradeUrl}
+                onChange={(e) => setForm({ ...form, tradeUrl: e.target.value.trim() })}
+                placeholder="https://steamcommunity.com/tradeoffer/new/?partner=...&token=..."
+                {...aria('tradeUrl')}
+              />
               <span className="muted small">Necessário para resgatar skins da loja.</span>
               {fieldErr('tradeUrl')}
             </div>
             <label className="check">
-              <input type="checkbox" checked={form.publicHistory} onChange={set('publicHistory')} /> Histórico de partidas público
+              <input type="checkbox" checked={form.publicHistory} onChange={set('publicHistory')} /> Histórico de
+              partidas público
             </label>
           </section>
         </div>
 
         <aside className="ep-preview-col">
           <section className="card ep-preview" aria-label="Pré-visualização">
-            <div className={`ep-preview-banner ${form.banner.startsWith('banner-') ? form.banner : ''} ${form.banner === 'default' ? 'banner-default' : ''}`} style={bannerStyle(form.banner)} />
+            <div
+              className={`ep-preview-banner ${form.banner.startsWith('banner-') ? form.banner : ''} ${form.banner === 'default' ? 'banner-default' : ''}`}
+              style={bannerStyle(form.banner)}
+            />
             <div className="ep-preview-body">
               <PreviewAvatar hue={form.avatarHue} nick={form.nick || ME.nick} />
               <strong>
@@ -245,7 +322,12 @@ function PreviewAvatar({ hue, nick }) {
     <span
       className={`avatar ${equipped.frame ?? ''}`}
       aria-hidden="true"
-      style={{ width: 84, height: 84, fontSize: 32, background: `linear-gradient(135deg, hsl(${h} 40% 40%), hsl(${(h + 40) % 360} 40% 20%))` }}
+      style={{
+        width: 84,
+        height: 84,
+        fontSize: 32,
+        background: `linear-gradient(135deg, hsl(${h} 40% 40%), hsl(${(h + 40) % 360} 40% 20%))`,
+      }}
     >
       {nick.slice(0, 2).toUpperCase()}
     </span>

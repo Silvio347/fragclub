@@ -106,7 +106,10 @@ export default function MatchRoom() {
   // Sobe o servidor depois do veto
   useEffect(() => {
     if (!vetoDone) return undefined;
-    setMessages((m) => [...m, { from: 'Sistema', text: `Mapa definido: ${pickedMap.name}. Configurando servidor...`, system: true }]);
+    setMessages((m) => [
+      ...m,
+      { from: 'Sistema', text: `Mapa definido: ${pickedMap.name}. Configurando servidor...`, system: true },
+    ]);
     const t = setTimeout(() => setServerReady(true), 2500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -22,7 +22,11 @@ function applySession(session) {
   if (!session) return;
   if (session.nick) ME.nick = session.nick;
   ME.premium = !!session.premium;
-  ME.profile = { ...DEFAULT_PROFILE, ...session.profile, socials: { ...DEFAULT_PROFILE.socials, ...session.profile?.socials } };
+  ME.profile = {
+    ...DEFAULT_PROFILE,
+    ...session.profile,
+    socials: { ...DEFAULT_PROFILE.socials, ...session.profile?.socials },
+  };
   ME.country = ME.profile.country;
 }
 
@@ -92,17 +96,29 @@ export function AuthProvider({ children }) {
   const updateProfile = useCallback(
     async ({ nick, ...profile }) => {
       await wait(500);
-      if (nick && nick !== user.nick && NICKS.includes(nick.toLowerCase())) throw new Error('Esse nick já está em uso.');
+      if (nick && nick !== user.nick && NICKS.includes(nick.toLowerCase()))
+        throw new Error('Esse nick já está em uso.');
       persist({ ...user, nick: nick || user.nick, profile: { ...user.profile, ...profile } });
     },
     [user],
   );
 
-  const profile = user ? ME.profile ?? DEFAULT_PROFILE : DEFAULT_PROFILE;
+  const profile = user ? (ME.profile ?? DEFAULT_PROFILE) : DEFAULT_PROFILE;
 
   return (
     <AuthCtx.Provider
-      value={{ user, profile, login, loginWithSteam, register, logout, subscribe, cancelSubscription, grantPremiumDays, updateProfile }}
+      value={{
+        user,
+        profile,
+        login,
+        loginWithSteam,
+        register,
+        logout,
+        subscribe,
+        cancelSubscription,
+        grantPremiumDays,
+        updateProfile,
+      }}
     >
       {children}
     </AuthCtx.Provider>

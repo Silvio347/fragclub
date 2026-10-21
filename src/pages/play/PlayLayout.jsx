@@ -1,6 +1,7 @@
+import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
+import PageLoader from '../../components/PageLoader';
 import { Crosshair, Swords, Shield, Target } from 'lucide-react';
-import '../../styles/play.css';
 
 const TABS = [
   { to: '/jogar', label: 'Ranqueada', hint: 'Fila 5v5', icon: Crosshair, end: true },
@@ -29,7 +30,9 @@ export default function PlayLayout() {
           </NavLink>
         ))}
       </nav>
-      <Outlet />
+      <Suspense fallback={<PageLoader />}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 }

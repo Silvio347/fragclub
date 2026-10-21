@@ -85,7 +85,11 @@ export default function History() {
           <h2>Partidas</h2>
           <span className="muted small">Clique em uma partida para ver o placar completo</span>
         </header>
-        {visible.length ? <MatchList matches={visible} /> : <p className="muted empty-state">Nenhuma partida com esses filtros.</p>}
+        {visible.length ? (
+          <MatchList matches={visible} />
+        ) : (
+          <p className="muted empty-state">Nenhuma partida com esses filtros.</p>
+        )}
         {shown < filtered.length && (
           <button type="button" className="btn btn-ghost btn-block load-more" onClick={() => setShown((s) => s + PAGE)}>
             Carregar mais ({filtered.length - shown} restantes)

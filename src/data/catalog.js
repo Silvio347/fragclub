@@ -17,7 +17,17 @@ export const WEAPON_TYPES = [
   { id: 'knife', label: 'Facas' },
 ];
 
-const skin = (id, name, type, rarity, wear, price, stock) => ({ id, kind: 'skin', name, type, rarity, wear, price, stock, image: `/skins/${id}.png` });
+const skin = (id, name, type, rarity, wear, price, stock) => ({
+  id,
+  kind: 'skin',
+  name,
+  type,
+  rarity,
+  wear,
+  price,
+  stock,
+  image: `/skins/${id}.png`,
+});
 
 export const SKINS = [
   skin('ak-slate', 'AK-47 | Slate', 'rifle', 'restricted', 'ft', 1800, 40),
@@ -39,25 +49,74 @@ export const SKINS = [
 
 // Cosméticos da plataforma (aplicados no perfil/avatar)
 export const COSMETICS = [
-  { id: 'frame-neon', kind: 'frame', name: 'Moldura Neon Roxa', desc: 'Anel roxo com brilho pulsando no seu avatar.', price: 1200 },
+  {
+    id: 'frame-neon',
+    kind: 'frame',
+    name: 'Moldura Neon Roxa',
+    desc: 'Anel roxo com brilho pulsando no seu avatar.',
+    price: 1200,
+  },
   { id: 'frame-gold', kind: 'frame', name: 'Moldura Dourada', desc: 'Para quem fecha round no clutch.', price: 1800 },
   { id: 'frame-fire', kind: 'frame', name: 'Moldura Chamas', desc: 'Anel animado em tons de fogo.', price: 2600 },
-  { id: 'nick-purple', kind: 'nick', name: 'Nick Gradiente Roxo', desc: 'Seu nick com gradiente roxo animado.', price: 900 },
+  {
+    id: 'nick-purple',
+    kind: 'nick',
+    name: 'Nick Gradiente Roxo',
+    desc: 'Seu nick com gradiente roxo animado.',
+    price: 900,
+  },
   { id: 'nick-ice', kind: 'nick', name: 'Nick Gelo', desc: 'Gradiente azul gelo no seu nick.', price: 900 },
-  { id: 'banner-galaxy', kind: 'banner', name: 'Banner Galáxia', desc: 'Banner animado para o seu perfil.', price: 1500 },
-  { id: 'banner-grid', kind: 'banner', name: 'Banner Grid Neon', desc: 'O grid roxo da landing no seu perfil.', price: 1500 },
+  {
+    id: 'banner-galaxy',
+    kind: 'banner',
+    name: 'Banner Galáxia',
+    desc: 'Banner animado para o seu perfil.',
+    price: 1500,
+  },
+  {
+    id: 'banner-grid',
+    kind: 'banner',
+    name: 'Banner Grid Neon',
+    desc: 'O grid roxo da landing no seu perfil.',
+    price: 1500,
+  },
 ];
 
 export const PREMIUM_ITEMS = [
-  { id: 'prem-7d', kind: 'premium', name: 'Premium 7 dias', desc: 'Todos os benefícios Premium por uma semana.', price: 2500, days: 7 },
-  { id: 'prem-30d', kind: 'premium', name: 'Premium 30 dias', desc: 'Um mês inteiro de Premium.', price: 8000, days: 30 },
+  {
+    id: 'prem-7d',
+    kind: 'premium',
+    name: 'Premium 7 dias',
+    desc: 'Todos os benefícios Premium por uma semana.',
+    price: 2500,
+    days: 7,
+  },
+  {
+    id: 'prem-30d',
+    kind: 'premium',
+    name: 'Premium 30 dias',
+    desc: 'Um mês inteiro de Premium.',
+    price: 8000,
+    days: 30,
+  },
 ];
 
 export const ALL_ITEMS = [...SKINS, ...COSMETICS, ...PREMIUM_ITEMS];
 export const ITEMS_BY_ID = Object.fromEntries(ALL_ITEMS.map((i) => [i.id, i]));
 
 // Banners de perfil gratuitos (mapas) + especiais da loja
-export const FREE_BANNERS = ['default', 'mirage', 'inferno', 'nuke', 'ancient', 'anubis', 'dust2', 'train', 'overpass', 'vertigo'];
+export const FREE_BANNERS = [
+  'default',
+  'mirage',
+  'inferno',
+  'nuke',
+  'ancient',
+  'anubis',
+  'dust2',
+  'train',
+  'overpass',
+  'vertigo',
+];
 
 export const EARN_RULES = [
   ['Vitória na ranqueada', 120],

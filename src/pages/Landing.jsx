@@ -1,17 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Crosshair, Shield, Target, ShieldCheck, BarChart3, Trophy, ArrowRight, Swords, Check,
-} from 'lucide-react';
+import { Crosshair, Shield, Target, ShieldCheck, BarChart3, Trophy, ArrowRight, Swords, Check } from 'lucide-react';
 import { ALL_MAPS } from '../data/mock';
 import { useAuth } from '../context/AuthContext';
 import { LevelBadge, MapThumb } from '../components/ui';
 import { Reveal, CountUp } from '../components/motion';
-import '../styles/landing.css';
 
 const MODES = [
-  { icon: Crosshair, title: 'Ranqueada', text: 'Fila 5v5 com veto de mapas, sozinho ou com até 4 amigos. Cada vitória vale ELO.' },
-  { icon: Swords, title: 'Lobbies & Desafios', text: 'Monte seu lobby, veja quem está online e escolha contra quem jogar.' },
+  {
+    icon: Crosshair,
+    title: 'Ranqueada',
+    text: 'Fila 5v5 com veto de mapas, sozinho ou com até 4 amigos. Cada vitória vale ELO.',
+  },
+  {
+    icon: Swords,
+    title: 'Lobbies & Desafios',
+    text: 'Monte seu lobby, veja quem está online e escolha contra quem jogar.',
+  },
   { icon: Shield, title: 'Retake', text: 'Servidores dedicados para treinar retomada e pós-plant.' },
   { icon: Target, title: 'Deathmatch', text: 'Aquecimento com filtros: só HS, pistolas, rifles ou AWP.' },
 ];
@@ -165,8 +170,8 @@ export default function Landing() {
               O CS2 competitivo <span className="lp-gradient">do jeito certo.</span>
             </h1>
             <p>
-              Fila ranqueada, lobbies para desafiar quem você quiser, servidores de retake e DM, e campeonatos toda semana.
-              Tudo num lugar só.
+              Fila ranqueada, lobbies para desafiar quem você quiser, servidores de retake e DM, e campeonatos toda
+              semana. Tudo num lugar só.
             </p>
             <div className="lp-cta">
               <Link to={user ? '/jogar' : '/cadastro'} className="btn btn-primary btn-xl lp-glow">
@@ -246,7 +251,9 @@ export default function Landing() {
         <Reveal className="lp-section-head">
           <span className="eyebrow">Modos de jogo</span>
           <h2>Fila ranqueada ou lobby aberto. Você escolhe.</h2>
-          <p className="muted">Puxe fila com a sua party ou entre na lista de lobbies e desafie quem estiver disponível.</p>
+          <p className="muted">
+            Puxe fila com a sua party ou entre na lista de lobbies e desafie quem estiver disponível.
+          </p>
         </Reveal>
         <div className="lp-cards">
           {MODES.map((m, i) => {
@@ -313,8 +320,17 @@ export default function Landing() {
                 <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
               </linearGradient>
             </defs>
-            <path d="M0,110 L40,96 L80,102 L120,80 L160,86 L200,62 L240,70 L280,46 L320,52 L360,30 L400,22 L400,140 L0,140 Z" fill="url(#lpFill)" />
-            <path className="lp-chart-line" d="M0,110 L40,96 L80,102 L120,80 L160,86 L200,62 L240,70 L280,46 L320,52 L360,30 L400,22" fill="none" stroke="#a78bfa" strokeWidth="3" />
+            <path
+              d="M0,110 L40,96 L80,102 L120,80 L160,86 L200,62 L240,70 L280,46 L320,52 L360,30 L400,22 L400,140 L0,140 Z"
+              fill="url(#lpFill)"
+            />
+            <path
+              className="lp-chart-line"
+              d="M0,110 L40,96 L80,102 L120,80 L160,86 L200,62 L240,70 L280,46 L320,52 L360,30 L400,22"
+              fill="none"
+              stroke="#a78bfa"
+              strokeWidth="3"
+            />
           </svg>
         </Reveal>
       </section>

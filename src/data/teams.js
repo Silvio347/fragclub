@@ -3,7 +3,20 @@ import { NICKS, MAPS, REGIONS, makePlayer } from './mock';
 
 export const TEAM_ROLES = ['Capitão', 'Jogador', 'Reserva', 'Coach'];
 export const TEAM_MAX = 7; // 5 titulares + reservas/coach
-export const TEAM_COLORS = ['#8b5cf6', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#eab308', '#22c55e', '#a855f7'];
+export const TEAM_COLORS = [
+  '#8b5cf6',
+  '#ef4444',
+  '#f59e0b',
+  '#10b981',
+  '#3b82f6',
+  '#ec4899',
+  '#14b8a6',
+  '#f97316',
+  '#6366f1',
+  '#eab308',
+  '#22c55e',
+  '#a855f7',
+];
 
 const DEFS = [
   ['Os Brabos', 'BRB', 'Time focado em campeonatos de fim de semana. Treinos ter/qui à noite.'],

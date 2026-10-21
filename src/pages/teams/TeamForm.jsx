@@ -66,12 +66,29 @@ export default function TeamForm({ initial = EMPTY_TEAM, submitLabel, onSubmit, 
       <div className="field-row">
         <div className="field">
           <label htmlFor="team-name">Nome</label>
-          <input id="team-name" className="input" value={t.name} onChange={set('name')} maxLength={24} aria-invalid={!!errors.name || undefined} aria-describedby={errors.name ? 'team-name-err' : undefined} />
+          <input
+            id="team-name"
+            className="input"
+            value={t.name}
+            onChange={set('name')}
+            maxLength={24}
+            aria-invalid={!!errors.name || undefined}
+            aria-describedby={errors.name ? 'team-name-err' : undefined}
+          />
           {err('name')}
         </div>
         <div className="field">
           <label htmlFor="team-tag">Tag</label>
-          <input id="team-tag" className="input" value={t.tag} onChange={set('tag')} maxLength={5} placeholder="EX: BRB" aria-invalid={!!errors.tag || undefined} aria-describedby={errors.tag ? 'team-tag-err' : undefined} />
+          <input
+            id="team-tag"
+            className="input"
+            value={t.tag}
+            onChange={set('tag')}
+            maxLength={5}
+            placeholder="EX: BRB"
+            aria-invalid={!!errors.tag || undefined}
+            aria-describedby={errors.tag ? 'team-tag-err' : undefined}
+          />
           {err('tag')}
         </div>
       </div>
@@ -81,7 +98,14 @@ export default function TeamForm({ initial = EMPTY_TEAM, submitLabel, onSubmit, 
         <div className="swatches">
           {TEAM_COLORS.map((c) => (
             <label key={c} className={`swatch ${t.color === c ? 'active' : ''}`} style={{ background: c }}>
-              <input type="radio" name="team-color" value={c} checked={t.color === c} onChange={set('color')} aria-label={`Cor ${c}`} />
+              <input
+                type="radio"
+                name="team-color"
+                value={c}
+                checked={t.color === c}
+                onChange={set('color')}
+                aria-label={`Cor ${c}`}
+              />
             </label>
           ))}
         </div>
@@ -112,12 +136,21 @@ export default function TeamForm({ initial = EMPTY_TEAM, submitLabel, onSubmit, 
         <label htmlFor="team-desc">
           Descrição <span className="muted small">({t.description.length}/160)</span>
         </label>
-        <textarea id="team-desc" className="input textarea" value={t.description} onChange={set('description')} maxLength={160} rows={3} placeholder="Horário de treino, mapas, o que procuram..." />
+        <textarea
+          id="team-desc"
+          className="input textarea"
+          value={t.description}
+          onChange={set('description')}
+          maxLength={160}
+          rows={3}
+          placeholder="Horário de treino, mapas, o que procuram..."
+        />
         {err('description')}
       </div>
 
       <label className="check">
-        <input type="checkbox" checked={t.recruiting} onChange={set('recruiting')} /> Aberto para novos membros (recrutando)
+        <input type="checkbox" checked={t.recruiting} onChange={set('recruiting')} /> Aberto para novos membros
+        (recrutando)
       </label>
 
       {errors.form && (

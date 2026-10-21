@@ -1,11 +1,25 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Crown, Check, Minus, Zap, BarChart3, Server, Film, Trophy, Palette, Headphones, Target, ShieldCheck, Loader2, QrCode, CreditCard, PartyPopper,
+  Crown,
+  Check,
+  Minus,
+  Zap,
+  BarChart3,
+  Server,
+  Film,
+  Trophy,
+  Palette,
+  Headphones,
+  Target,
+  ShieldCheck,
+  Loader2,
+  QrCode,
+  CreditCard,
+  PartyPopper,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Modal } from '../components/ui';
-import '../styles/premium.css';
 
 const brl = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -17,7 +31,11 @@ export const PLANS = [
 
 const HIGHLIGHTS = [
   { icon: Zap, title: 'Fila prioritária', text: 'Encontre partida mais rápido na ranqueada.' },
-  { icon: BarChart3, title: 'Stats avançadas', text: 'Rating e Round Swing por mapa e por lado, histórico da carreira inteira.' },
+  {
+    icon: BarChart3,
+    title: 'Stats avançadas',
+    text: 'Rating e Round Swing por mapa e por lado, histórico da carreira inteira.',
+  },
   { icon: Server, title: 'Servidores exclusivos', text: 'Retake e DM só para Premium, sempre com vaga.' },
   { icon: Film, title: 'Demos das partidas', text: 'Baixe a demo de qualquer partida para revisar.' },
 ];
@@ -45,7 +63,10 @@ const COMPARE = [
 ];
 
 const FAQ = [
-  ['Premium dá vantagem dentro do jogo?', 'Não. ELO, matchmaking e anti-cheat são iguais para todo mundo. O Premium é sobre conveniência, estatísticas e conteúdo extra.'],
+  [
+    'Premium dá vantagem dentro do jogo?',
+    'Não. ELO, matchmaking e anti-cheat são iguais para todo mundo. O Premium é sobre conveniência, estatísticas e conteúdo extra.',
+  ],
   ['Posso cancelar quando quiser?', 'Sim. Você continua com os benefícios até o fim do período que já pagou.'],
   ['Quais formas de pagamento?', 'Pix e cartão de crédito. No plano anual também dá para parcelar no cartão.'],
 ];
@@ -101,12 +122,23 @@ function Checkout({ plan, onClose }) {
             <QrCode size={18} aria-hidden="true" /> Pix <span className="tag tag-accent">Aprovação na hora</span>
           </label>
           <label className={`pay-method ${method === 'card' ? 'active' : ''}`}>
-            <input type="radio" name="pay" value="card" checked={method === 'card'} onChange={() => setMethod('card')} />
+            <input
+              type="radio"
+              name="pay"
+              value="card"
+              checked={method === 'card'}
+              onChange={() => setMethod('card')}
+            />
             <CreditCard size={18} aria-hidden="true" /> Cartão de crédito
           </label>
         </fieldset>
 
-        <button type="button" className="btn btn-primary btn-lg btn-block" onClick={confirm} disabled={step === 'loading'}>
+        <button
+          type="button"
+          className="btn btn-primary btn-lg btn-block"
+          onClick={confirm}
+          disabled={step === 'loading'}
+        >
           {step === 'loading' ? (
             <>
               <Loader2 size={18} className="spin" aria-hidden="true" /> Processando...
@@ -127,7 +159,9 @@ export default function Premium() {
   // Premium também pode vir da loja (FragPoints), com plano "pontos-Xd"
   const activePlan =
     PLANS.find((p) => p.id === user?.premium?.plan) ??
-    (user?.premium ? { id: user.premium.plan, name: `${user.premium.plan.replace(/\D/g, '')} dias (FragPoints)` } : null);
+    (user?.premium
+      ? { id: user.premium.plan, name: `${user.premium.plan.replace(/\D/g, '')} dias (FragPoints)` }
+      : null);
 
   return (
     <div className="page stack premium-page">
@@ -154,7 +188,11 @@ export default function Premium() {
         {PLANS.map((p, i) => {
           const current = activePlan?.id === p.id;
           return (
-            <article key={p.id} className={`card plan ${p.best ? 'plan-best' : ''}`} style={{ animationDelay: `${i * 90}ms` }}>
+            <article
+              key={p.id}
+              className={`card plan ${p.best ? 'plan-best' : ''}`}
+              style={{ animationDelay: `${i * 90}ms` }}
+            >
               {p.best && <span className="plan-badge">Mais popular</span>}
               <h2>{p.name}</h2>
               <div className="plan-price">

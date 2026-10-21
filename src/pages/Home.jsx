@@ -43,7 +43,14 @@ export default function Home() {
         </section>
 
         <section className="stats-grid" aria-label="Estatísticas das últimas 20 partidas">
-          <StatCard icon={Star} label="Rating 3.0" value={ME.rating.toFixed(2)} valueClass={ratingClass(ME.rating)} hint="Últimas 20" highlight />
+          <StatCard
+            icon={Star}
+            label="Rating 3.0"
+            value={ME.rating.toFixed(2)}
+            valueClass={ratingClass(ME.rating)}
+            hint="Últimas 20"
+            highlight
+          />
           <StatCard icon={Activity} label="KAST" value={`${ME.kast}%`} hint="Rounds com impacto" />
           <StatCard icon={Flame} label="ADR" value={ME.adr} hint="Dano médio/round" />
           <StatCard icon={Swords} label="K/D" value={ME.kd.toFixed(2)} hint={`${ME.winRate}% de vitórias`} />
