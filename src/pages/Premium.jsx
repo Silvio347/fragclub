@@ -124,7 +124,10 @@ function Checkout({ plan, onClose }) {
 export default function Premium() {
   const { user, cancelSubscription } = useAuth();
   const [checkout, setCheckout] = useState(null);
-  const activePlan = PLANS.find((p) => p.id === user?.premium?.plan);
+  // Premium também pode vir da loja (FragPoints), com plano "pontos-Xd"
+  const activePlan =
+    PLANS.find((p) => p.id === user?.premium?.plan) ??
+    (user?.premium ? { id: user.premium.plan, name: `${user.premium.plan.replace(/\D/g, '')} dias (FragPoints)` } : null);
 
   return (
     <div className="page stack premium-page">

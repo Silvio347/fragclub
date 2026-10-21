@@ -245,7 +245,7 @@ export default function Landing() {
       <section id="modos" className="lp-section">
         <Reveal className="lp-section-head">
           <span className="eyebrow">Modos de jogo</span>
-          <h2>Fila da FACEIT, lobby da GC. Você escolhe.</h2>
+          <h2>Fila ranqueada ou lobby aberto. Você escolhe.</h2>
           <p className="muted">Puxe fila com a sua party ou entre na lista de lobbies e desafie quem estiver disponível.</p>
         </Reveal>
         <div className="lp-cards">
@@ -347,7 +347,7 @@ export default function Landing() {
       <footer className="lp-footer">
         <Brand />
         <p className="muted small">
-          Projeto de estudo. Não afiliado à Valve, FACEIT ou Gamers Club. Counter-Strike é marca da Valve Corporation.
+          Projeto de estudo. Não afiliado à Valve Corporation. Counter-Strike é marca da Valve Corporation.
         </p>
       </footer>
     </div>

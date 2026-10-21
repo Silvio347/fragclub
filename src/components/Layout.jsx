@@ -1,12 +1,14 @@
 import { NavLink, Link, Outlet, useNavigate } from 'react-router-dom';
-import { Home, Crosshair, Trophy, Medal, User, Bell, Search, Crown, X, LogOut, Users, History } from 'lucide-react';
+import { Home, Crosshair, Trophy, Medal, User, Search, Crown, X, LogOut, Users, History, Shield, ShoppingBag, Coins } from 'lucide-react';
 import { ME } from '../data/mock';
 import { useQueue } from '../context/QueueContext';
 import { useAuth } from '../context/AuthContext';
 import { useParty } from '../context/PartyContext';
+import { useShop } from '../context/ShopContext';
 import { formatTime } from '../utils/random';
-import { Avatar, LevelBadge } from './ui';
+import { Avatar, LevelBadge, Nick } from './ui';
 import MatchFoundModal from './MatchFoundModal';
+import NotificationsMenu from './NotificationsMenu';
 
 function Sidebar() {
   const { user } = useAuth();
@@ -14,9 +16,11 @@ function Sidebar() {
   const nav = [
     { to: '/inicio', label: 'Início', icon: Home },
     { to: '/jogar', label: 'Jogar', icon: Crosshair },
+    { to: '/times', label: 'Times', icon: Shield },
     { to: '/ranking', label: 'Ranking', icon: Trophy },
     { to: '/campeonatos', label: 'Campeonatos', icon: Medal },
     { to: `/historico/${ME.nick}`, label: 'Partidas', icon: History },
+    { to: '/loja', label: 'Loja', icon: ShoppingBag },
     { to: `/perfil/${ME.nick}`, label: 'Perfil', icon: User },
     { to: '/premium', label: 'Premium', icon: Crown },
   ];
@@ -63,6 +67,7 @@ function Topbar() {
   const { status, elapsed, cancel, mode } = useQueue();
   const { party } = useParty();
   const { logout } = useAuth();
+  const { points } = useShop();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -103,12 +108,13 @@ function Topbar() {
             <span className="muted small">ELO</span>
           </div>
         </div>
-        <button type="button" className="icon-btn has-dot" aria-label="Notificações (3 novas)">
-          <Bell size={18} />
-        </button>
+        <Link to="/loja" className="points-pill" aria-label={`${points} FragPoints, abrir loja`}>
+          <Coins size={14} aria-hidden="true" /> {points.toLocaleString('pt-BR')} <span className="hide-sm">FP</span>
+        </Link>
+        <NotificationsMenu />
         <Link to={`/perfil/${ME.nick}`} className="topbar-user">
           <Avatar nick={ME.nick} size={34} status="online" />
-          <span className="hide-sm">{ME.nick}</span>
+          <Nick nick={ME.nick} className="hide-sm" />
         </Link>
         <button type="button" className="icon-btn" onClick={handleLogout} aria-label="Sair">
           <LogOut size={16} />

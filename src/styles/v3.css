@@ -1,0 +1,139 @@
+/* ============ Globais v3: notificações, cosméticos, utilitários ============ */
+.link-btn { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 0; color: var(--accent-2); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.link-btn:hover:not(:disabled) { text-decoration: underline; }
+.link-btn:disabled { color: var(--muted); cursor: default; }
+.textarea { height: auto; padding: 10px 12px; resize: vertical; line-height: 1.45; font: inherit; }
+.form-actions { justify-content: flex-end; margin-top: 6px; }
+.tag-win { background: rgba(34, 197, 94, 0.12); color: var(--win); }
+.select-sm { height: 30px; font-size: 13px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+fieldset.field { border: 0; margin: 0; padding: 0; }
+fieldset.field legend, .field-label { font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; }
+
+.points-pill { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.3); color: #fde68a; font-weight: 800; font-size: 13px; font-variant-numeric: tabular-nums; transition: background 0.15s; }
+.points-pill:hover { background: rgba(250, 204, 21, 0.18); }
+
+/* Notificações */
+.notif { position: relative; }
+.notif-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+.notif .icon-btn.has-dot::after { display: none; }
+.notif-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 50;
+  width: min(380px, calc(100vw - 24px));
+  max-height: min(560px, calc(100vh - 90px));
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  animation: notif-in 0.18s ease-out;
+  overflow: hidden;
+}
+@keyframes notif-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+.notif-head, .notif-foot { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; }
+.notif-head { border-bottom: 1px solid var(--border); }
+.notif-foot { border-top: 1px solid var(--border); justify-content: center; }
+.notif-list { overflow-y: auto; flex: 1; }
+.notif-empty { padding: 30px; text-align: center; }
+.notif-item { position: relative; display: flex; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.notif-item:last-child { border-bottom: 0; }
+.notif-item:hover { background: var(--surface-2); }
+.notif-item.unread { background: rgba(139, 92, 246, 0.07); }
+.notif-item.unread::before { content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+.notif-icon { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; background: var(--surface-3); color: var(--muted); }
+.notif-icon.type-team_invite, .notif-icon.type-team { background: var(--accent-soft); color: var(--accent-2); }
+.notif-icon.type-friend_request { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+.notif-icon.type-challenge { background: rgba(239, 68, 68, 0.12); color: #fca5a5; }
+.notif-icon.type-points, .notif-icon.type-shop { background: rgba(250, 204, 21, 0.12); color: #fde68a; }
+.notif-icon.type-tournament { background: rgba(34, 197, 94, 0.12); color: #86efac; }
+.notif-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.notif-main { display: flex; flex-direction: column; gap: 2px; border: 0; background: none; padding: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.notif-main strong { font-size: 13px; }
+.notif-main span { font-size: 12px; color: var(--muted); }
+.notif-actions { display: flex; gap: 6px; }
+.notif-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.notif-remove { display: grid; place-items: center; width: 22px; height: 22px; border: 0; border-radius: 6px; background: none; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity 0.15s; }
+.notif-item:hover .notif-remove, .notif-remove:focus-visible { opacity: 1; }
+.notif-remove:hover { background: var(--surface-3); color: var(--text); }
+
+/* Escudo do time */
+.team-logo { display: inline-grid; place-items: center; flex-shrink: 0; border-radius: 28%; color: #fff; font-weight: 900; letter-spacing: 0.04em; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5); }
+
+/* Cosméticos: molduras do avatar */
+.avatar.frame-neon { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #a78bfa, 0 0 18px 2px rgba(139, 92, 246, 0.7); animation: frame-pulse 2.2s ease-in-out infinite; }
+@keyframes frame-pulse { 50% { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #c4b5fd, 0 0 28px 6px rgba(139, 92, 246, 0.85); } }
+.avatar.frame-gold { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #fbbf24, 0 0 14px rgba(251, 191, 36, 0.55); }
+.avatar.frame-fire { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #f97316, 0 0 18px 3px rgba(239, 68, 68, 0.65); animation: frame-fire 1.6s ease-in-out infinite alternate; }
+@keyframes frame-fire { to { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #facc15, 0 0 26px 6px rgba(249, 115, 22, 0.8); } }
+
+/* Cosméticos: estilo do nick */
+.nick-purple, .nick-ice { background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 4s linear infinite; }
+.nick-purple { background-image: linear-gradient(90deg, #c4b5fd, #8b5cf6, #e879f9, #c4b5fd); }
+.nick-ice { background-image: linear-gradient(90deg, #e0f2fe, #38bdf8, #a5f3fc, #e0f2fe); }
+
+/* Cosméticos: banners animados (perfil, edição e loja) */
+.banner-galaxy {
+  background:
+    radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 70% 60%, #e9d5ff, transparent),
+    radial-gradient(1px 1px at 40% 80%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 85% 20%, #fff, transparent),
+    radial-gradient(500px 160px at 30% 40%, rgba(168, 85, 247, 0.55), transparent 70%),
+    radial-gradient(400px 160px at 80% 70%, rgba(59, 130, 246, 0.45), transparent 70%),
+    #0b0618 !important;
+  background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%, 100% 100%, 100% 100%, auto !important;
+  animation: galaxy 18s linear infinite;
+}
+@keyframes galaxy { to { background-position: 100% 100%, -100% 50%, 50% -100%, 100% 0, 0 0, 0 0, 0 0; } }
+.banner-grid {
+  background:
+    linear-gradient(rgba(139, 92, 246, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.35) 1px, transparent 1px),
+    radial-gradient(600px 200px at 50% 120%, rgba(139, 92, 246, 0.6), transparent 70%),
+    #0d0a18 !important;
+  background-size: 32px 32px, 32px 32px, auto, auto !important;
+  animation: grid-pan 4s linear infinite;
+}
+@keyframes grid-pan { to { background-position: 0 32px, 32px 0, 0 0, 0 0; } }
+.banner-map { background-size: cover !important; background-position: center !important; }
+
+/* Perfil: extras */
+.profile-bio { color: var(--text); max-width: 560px; }
+.profile-extra { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 24px 20px; }
+.profile-team, .social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px 0 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.social-link { padding-left: 12px; }
+.profile-team:hover, .social-link:hover { border-color: var(--accent); }

@@ -1,10 +1,22 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Star, Target, Activity, Flame, Swords, TrendingUp, UserPlus, Crown, Calendar, ChevronRight } from 'lucide-react';
-import { getPlayer, getMatchHistory, getEloHistory, getMapStats, ME, FLAGS } from '../data/mock';
+import {
+  Star, Target, Activity, Flame, Swords, TrendingUp, UserPlus, Crown, Calendar, ChevronRight, Pencil, Check, Crosshair, Gamepad2, Twitch, Instagram, Youtube,
+} from 'lucide-react';
+import { getPlayer, getMatchHistory, getEloHistory, getMapStats, ME, FLAGS, MAPS_BY_ID } from '../data/mock';
+import { PUBLIC_TEAMS } from '../data/teams';
+import { useAuth } from '../context/AuthContext';
+import { useTeams } from '../context/TeamsContext';
 import { levelProgress, ratingClass } from '../utils/levels';
-import { Avatar, LevelBadge, MapThumb, Progress, StatCard } from '../components/ui';
+import { Avatar, LevelBadge, MapThumb, Nick, Progress, StatCard, TeamLogo } from '../components/ui';
 import MatchList from '../components/MatchList';
+
+export const SOCIALS = [
+  { key: 'steam', label: 'Steam', icon: Gamepad2 },
+  { key: 'twitch', label: 'Twitch', icon: Twitch },
+  { key: 'instagram', label: 'Instagram', icon: Instagram },
+  { key: 'youtube', label: 'YouTube', icon: Youtube },
+];
 
 // Gráfico de ELO: linha em SVG + pontos em HTML (focáveis) com tooltip da partida
 function EloChart({ points }) {
@@ -130,6 +142,10 @@ export default function Profile() {
   const mapStats = useMemo(() => getMapStats(player.nick), [player]);
   const prog = levelProgress(player.elo);
   const isMe = player.nick === ME.nick;
+  const { user, profile } = useAuth();
+  const { myTeams } = useTeams();
+  const [requested, setRequested] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const details = [
     ['Opening duels vencidos', `${player.openingSuccess}%`],
@@ -142,24 +158,43 @@ export default function Profile() {
     ['Partidas', player.matches],
   ];
 
+  const p = isMe ? profile : null;
+  const banner = p?.banner ?? 'default';
+  const bannerProps = MAPS_BY_ID[banner]
+    ? { className: 'profile-banner banner-map', style: { backgroundImage: `linear-gradient(180deg, rgba(13,13,16,0.1), rgba(13,13,16,0.75)), url(/maps/${banner}.jpg)` } }
+    : { className: `profile-banner ${banner.startsWith('banner-') ? banner : ''}` };
+  const socials = p ? SOCIALS.filter((s) => p.socials[s.key]) : [];
+  const playerTeams = isMe ? myTeams : PUBLIC_TEAMS.filter((t) => t.members.some((m) => m.nick === player.nick));
+
+  const copyCrosshair = async () => {
+    try {
+      await navigator.clipboard.writeText(p.crosshair);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
     <div className="page stack">
       <section className="card profile-head">
-        <div className="profile-banner" aria-hidden="true" />
+        <div {...bannerProps} aria-hidden="true" />
         <div className="profile-info">
           <Avatar nick={player.nick} size={104} />
           <div className="profile-name">
             <h1>
-              {player.nick}{' '}
-              {player.premium && (
+              <Nick nick={player.nick} />{' '}
+              {(isMe ? !!user?.premium : player.premium) && (
                 <span className="tag tag-accent">
                   <Crown size={12} aria-hidden="true" /> Premium
                 </span>
               )}
             </h1>
+            {p?.bio && <p className="profile-bio">{p.bio}</p>}
             <p className="muted row gap-sm wrap">
               <span>
-                {FLAGS[player.country]} {player.country}
+                {FLAGS[isMe ? p.country : player.country]} {isMe ? p.country : player.country}
               </span>
               <span className="row gap-xs">
                 <Calendar size={14} aria-hidden="true" /> Membro desde {player.memberSince}
@@ -177,12 +212,44 @@ export default function Profile() {
               <span className="muted small">{prog.next ? `${prog.toNext} para o level ${prog.next}` : 'Level máximo'}</span>
             </div>
           </div>
-          {!isMe && (
-            <button type="button" className="btn btn-primary">
-              <UserPlus size={16} aria-hidden="true" /> Adicionar
+          {isMe ? (
+            <Link to="/perfil/editar" className="btn btn-ghost">
+              <Pencil size={16} aria-hidden="true" /> Editar perfil
+            </Link>
+          ) : (
+            <button type="button" className={`btn ${requested ? 'btn-ghost' : 'btn-primary'}`} onClick={() => setRequested((r) => !r)}>
+              {requested ? (
+                <>
+                  <Check size={16} aria-hidden="true" /> Pedido enviado
+                </>
+              ) : (
+                <>
+                  <UserPlus size={16} aria-hidden="true" /> Adicionar
+                </>
+              )}
             </button>
           )}
         </div>
+
+        {(socials.length > 0 || p?.crosshair || playerTeams.length > 0) && (
+          <div className="profile-extra">
+            {playerTeams.map((t) => (
+              <Link key={t.id} to={`/times/${t.id}`} className="profile-team">
+                <TeamLogo tag={t.tag} color={t.color} size={26} /> {t.name}
+              </Link>
+            ))}
+            {socials.map(({ key, label, icon: Icon }) => (
+              <a key={key} href={p.socials[key]} target="_blank" rel="noopener noreferrer" className="social-link" aria-label={`${label} de ${player.nick}`}>
+                <Icon size={15} aria-hidden="true" /> {label}
+              </a>
+            ))}
+            {p?.crosshair && (
+              <button type="button" className="social-link" onClick={copyCrosshair} title={p.crosshair}>
+                <Crosshair size={15} aria-hidden="true" /> {copied ? 'Mira copiada!' : 'Copiar mira'}
+              </button>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="stats-grid stats-grid-6" aria-label="Estatísticas principais (últimas 20 partidas)">

@@ -6,11 +6,24 @@ const AuthCtx = createContext(null);
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Mock: o nick logado é aplicado no perfil "ME" para o resto do app refletir
+export const DEFAULT_PROFILE = {
+  bio: '',
+  country: 'BR',
+  avatarHue: null,
+  banner: 'default',
+  socials: { steam: '', twitch: '', instagram: '', youtube: '' },
+  tradeUrl: '',
+  crosshair: '',
+  publicHistory: true,
+};
+
+// Mock: dados da sessão são aplicados no perfil "ME" para o resto do app refletir
 function applySession(session) {
   if (!session) return;
   if (session.nick) ME.nick = session.nick;
   ME.premium = !!session.premium;
+  ME.profile = { ...DEFAULT_PROFILE, ...session.profile, socials: { ...DEFAULT_PROFILE.socials, ...session.profile?.socials } };
+  ME.country = ME.profile.country;
 }
 
 function readSession() {
@@ -68,11 +81,36 @@ export function AuthProvider({ children }) {
     persist({ ...user, premium: null });
   }, [user]);
 
+  // Premium comprado com FragPoints
+  const grantPremiumDays = useCallback(
+    (days) => {
+      persist({ ...user, premium: { plan: `pontos-${days}d`, since: new Date().toISOString() } });
+    },
+    [user],
+  );
+
+  const updateProfile = useCallback(
+    async ({ nick, ...profile }) => {
+      await wait(500);
+      if (nick && nick !== user.nick && NICKS.includes(nick.toLowerCase())) throw new Error('Esse nick já está em uso.');
+      persist({ ...user, nick: nick || user.nick, profile: { ...user.profile, ...profile } });
+    },
+    [user],
+  );
+
+  const profile = user ? ME.profile ?? DEFAULT_PROFILE : DEFAULT_PROFILE;
+
   return (
-    <AuthCtx.Provider value={{ user, login, loginWithSteam, register, logout, subscribe, cancelSubscription }}>
+    <AuthCtx.Provider
+      value={{ user, profile, login, loginWithSteam, register, logout, subscribe, cancelSubscription, grantPremiumDays, updateProfile }}
+    >
       {children}
     </AuthCtx.Provider>
   );
+}
+
+export function useAuthOptional() {
+  return useContext(AuthCtx);
 }
 
 export function useAuth() {

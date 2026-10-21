@@ -1,4 +1,4 @@
-// Faixas de ELO estilo FACEIT (levels 1 a 10)
+// Faixas de ELO (levels 1 a 10)
 export const LEVELS = [
   { level: 1, min: 0, max: 500 },
   { level: 2, min: 501, max: 750 },

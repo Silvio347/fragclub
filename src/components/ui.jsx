@@ -1,12 +1,24 @@
 import { useId } from 'react';
 import { hashString } from '../utils/random';
 import { levelColor } from '../utils/levels';
+import { ME } from '../data/mock';
+import { useAuthOptional } from '../context/AuthContext';
+import { useShopOptional } from '../context/ShopContext';
+
+// Visual do usuário logado: cor do avatar (perfil) + cosméticos equipados (loja)
+function useMyLook(nick) {
+  const auth = useAuthOptional();
+  const shop = useShopOptional();
+  if (!auth?.user || nick !== ME.nick) return null;
+  return { hue: auth.profile.avatarHue, frame: shop?.equipped.frame ?? null, nickStyle: shop?.equipped.nick ?? null };
+}
 
 export function Avatar({ nick, size = 36, status }) {
-  const hue = hashString(nick) % 360;
+  const look = useMyLook(nick);
+  const hue = look?.hue ?? hashString(nick) % 360;
   return (
     <span
-      className="avatar"
+      className={`avatar ${look?.frame ?? ''}`}
       aria-hidden="true"
       style={{
         width: size,
@@ -17,6 +29,31 @@ export function Avatar({ nick, size = 36, status }) {
     >
       {nick.slice(0, 2).toUpperCase()}
       {status && <span className={`avatar-status ${status}`} />}
+    </span>
+  );
+}
+
+// Nick com o estilo comprado na loja (só para o usuário logado)
+export function Nick({ nick, className = '', children }) {
+  const look = useMyLook(nick);
+  return <span className={`${look?.nickStyle ?? ''} ${className}`}>{children ?? nick}</span>;
+}
+
+// Escudo do time com a TAG
+export function TeamLogo({ tag, color, size = 48 }) {
+  return (
+    <span
+      className="team-logo"
+      aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        fontSize: Math.max(10, Math.round(size / Math.max(3, tag.length + 0.6))),
+        background: `linear-gradient(145deg, ${color}, ${color}55 70%, #0d0d10)`,
+        boxShadow: `0 0 0 1px ${color}88, 0 6px 18px ${color}33`,
+      }}
+    >
+      {tag}
     </span>
   );
 }
