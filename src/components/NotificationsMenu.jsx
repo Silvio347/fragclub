@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Users, UserPlus, Swords, Coins, Trophy, Info, ShoppingBag, Check, X, Trash2 } from 'lucide-react';
+import {
+  MessagesSquare,
+  Bell,
+  Users,
+  UserPlus,
+  Swords,
+  Coins,
+  Trophy,
+  Info,
+  ShoppingBag,
+  Check,
+  X,
+  Trash2,
+} from 'lucide-react';
 import { useNotifications, timeAgo } from '../context/NotificationsContext';
 import { useTeams } from '../context/TeamsContext';
 import { api } from '../services';
@@ -10,6 +23,7 @@ const ICONS = {
   team: Users,
   friend_request: UserPlus,
   friend: UserPlus,
+  forum: MessagesSquare,
   challenge: Swords,
   points: Coins,
   tournament: Trophy,

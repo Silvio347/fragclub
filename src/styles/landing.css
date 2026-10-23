@@ -75,16 +75,16 @@ html:has(.landing) {
 .lp-arrive.lp-split > :nth-child(2) {
   animation-delay: 0.1s;
 }
-.lp-arrive .lp-card {
+.lp-arrive .lp-card-wrap {
   animation: arrive 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
-.lp-arrive .lp-card:nth-child(2) {
+.lp-arrive .lp-card-wrap:nth-child(2) {
   animation-delay: 0.07s;
 }
-.lp-arrive .lp-card:nth-child(3) {
+.lp-arrive .lp-card-wrap:nth-child(3) {
   animation-delay: 0.14s;
 }
-.lp-arrive .lp-card:nth-child(4) {
+.lp-arrive .lp-card-wrap:nth-child(4) {
   animation-delay: 0.21s;
 }
 .lp-arrive .lp-level {
@@ -176,19 +176,29 @@ html:has(.landing) {
   right: -50%;
   bottom: -10%;
   height: 70%;
-  background-image: linear-gradient(rgba(139, 92, 246, 0.22) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 92, 246, 0.22) 1px, transparent 1px);
-  background-size: 60px 60px;
+  overflow: hidden;
   transform: perspective(500px) rotateX(62deg);
   transform-origin: center top;
   mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 60%, transparent);
+}
+/* A camada com as linhas desliza 1 célula e reinicia: movimento só por transform (GPU),
+   sem repintar o fundo a cada frame, que era o que fazia as linhas cintilarem */
+.lp-grid::before {
+  content: '';
+  position: absolute;
+  inset: -60px 0 0;
+  background-image: linear-gradient(rgba(139, 92, 246, 0.2) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.2) 1.5px, transparent 1.5px);
+  background-size: 60px 60px;
+  will-change: transform;
   animation: grid-move 3s linear infinite;
 }
 @keyframes grid-move {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
   to {
-    background-position:
-      0 60px,
-      0 0;
+    transform: translate3d(0, 60px, 0);
   }
 }
 .lp-orb {
@@ -196,6 +206,8 @@ html:has(.landing) {
   border-radius: 50%;
   filter: blur(80px);
   opacity: 0.55;
+  /* camada própria: o blur é rasterizado uma vez e só a posição anima */
+  will-change: transform;
 }
 .orb-1 {
   width: 520px;
@@ -318,6 +330,16 @@ html:has(.landing) {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
+/* Reserva a largura do valor final: os contadores vizinhos não andam enquanto conta */
+.countup {
+  display: inline-grid;
+}
+.countup > * {
+  grid-area: 1 / 1;
+}
+.countup-ghost {
+  visibility: hidden;
+}
 
 /* Visual flutuante */
 .lp-hero-visual {
@@ -381,10 +403,12 @@ html:has(.landing) {
   gap: 10px;
   padding: 18px;
   border-radius: 16px;
-  background: rgba(20, 20, 26, 0.82);
-  backdrop-filter: blur(10px);
+  background: rgba(20, 20, 26, 0.94);
   border: 1px solid rgba(139, 92, 246, 0.3);
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  /* texto rotacionado + movendo em subpixel cintilava; a camada própria evita isso */
+  will-change: translate;
+  backface-visibility: hidden;
   animation: float 6s ease-in-out infinite;
 }
 .card-a {
@@ -508,7 +532,11 @@ html:has(.landing) {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
+.lp-card-wrap {
+  display: flex;
+}
 .lp-card {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -517,12 +545,12 @@ html:has(.landing) {
   background: var(--surface);
   border: 1px solid var(--border);
   transition:
-    opacity 0.7s ease,
-    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
     border-color 0.2s,
     background 0.2s;
 }
-.lp-card.is-visible:hover {
+/* O hover é medido no wrapper, que não se mexe: o card sobe sem "fugir" do cursor */
+.lp-card-wrap.is-visible:hover .lp-card {
   transform: translateY(-6px);
   border-color: rgba(139, 92, 246, 0.55);
   background: linear-gradient(180deg, rgba(139, 92, 246, 0.1), var(--surface));
@@ -635,7 +663,11 @@ html:has(.landing) {
   opacity: 1;
   transform: none;
 }
-.lp-level:hover {
+.lp-level-inner {
+  display: inline-flex;
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.lp-level:hover .lp-level-inner {
   transform: translateY(-6px) scale(1.08);
 }
 
@@ -688,6 +720,11 @@ html:has(.landing) {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .lp-grid::before,
+  .lp-orb,
+  .lp-float {
+    animation: none;
+  }
   .reveal,
   .lp-level {
     opacity: 1;

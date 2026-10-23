@@ -14,7 +14,15 @@ const SESSION_KEY = 'fc_session';
 
 /** @returns {AccountSettings} */
 const INITIAL = () => ({
-  notifications: { team: true, friends: true, challenges: true, tournaments: true, shop: true, email: false },
+  notifications: {
+    team: true,
+    friends: true,
+    challenges: true,
+    tournaments: true,
+    shop: true,
+    forum: true,
+    email: false,
+  },
   privacy: { publicProfile: true, showOnline: true, invites: 'everyone' },
   security: { twoFactor: false },
   sessions: [
@@ -47,6 +55,7 @@ const PREF_BY_TYPE = {
   tournament: 'tournaments',
   shop: 'shop',
   points: 'shop',
+  forum: 'forum',
 };
 
 /** Usado pelo serviço de notificações para respeitar as preferências do usuário. */

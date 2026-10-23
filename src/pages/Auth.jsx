@@ -266,7 +266,16 @@ export function Register() {
             onChange={set('terms')}
             aria-invalid={!!errors.terms || undefined}
           />
-          Li e aceito os termos de uso e a política de privacidade
+          <span>
+            Li e aceito os{' '}
+            <Link to="/termos" target="_blank" rel="noopener">
+              Termos de Uso
+            </Link>{' '}
+            e a{' '}
+            <Link to="/privacidade" target="_blank" rel="noopener">
+              Política de Privacidade
+            </Link>
+          </span>
         </label>
         {fieldError('terms')}
         <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={loading}>

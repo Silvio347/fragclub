@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+const REVEAL_MS = 700;
+
 function useInView(options = { threshold: 0.15 }) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -23,14 +25,21 @@ function useInView(options = { threshold: 0.15 }) {
   return [ref, inView];
 }
 
-// Revela o conteúdo com fade/slide quando entra na tela
+// Revela o conteúdo com fade/slide quando entra na tela.
+// O atraso só vale para a entrada: depois disso é removido para não atrasar hovers.
 export function Reveal({ as: Tag = 'div', delay = 0, className = '', children, ...rest }) {
   const [ref, inView] = useInView();
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    if (!inView || !delay) return undefined;
+    const t = setTimeout(() => setSettled(true), delay + REVEAL_MS);
+    return () => clearTimeout(t);
+  }, [inView, delay]);
   return (
     <Tag
       ref={ref}
       className={`reveal ${inView ? 'is-visible' : ''} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
+      style={delay && !settled ? { transitionDelay: `${delay}ms` } : undefined}
       {...rest}
     >
       {children}
@@ -38,7 +47,10 @@ export function Reveal({ as: Tag = 'div', delay = 0, className = '', children, .
   );
 }
 
-// Número que conta de 0 até o valor quando aparece
+const fmt = (n, suffix) => `${n.toLocaleString('pt-BR')}${suffix}`;
+
+// Número que conta de 0 até o valor quando aparece.
+// O valor final fica reservado (invisível) por baixo, então a largura não muda durante a contagem.
 export function CountUp({ to, duration = 1600, suffix = '' }) {
   const [ref, inView] = useInView();
   const [value, setValue] = useState(0);
@@ -60,9 +72,14 @@ export function CountUp({ to, duration = 1600, suffix = '' }) {
     return () => cancelAnimationFrame(raf);
   }, [inView, to, duration]);
   return (
-    <span ref={ref}>
-      {value.toLocaleString('pt-BR')}
-      {suffix}
+    <span ref={ref} className="countup">
+      <span className="countup-ghost" aria-hidden="true">
+        {fmt(to, suffix)}
+      </span>
+      <span className="countup-value" aria-hidden="true">
+        {fmt(value, suffix)}
+      </span>
+      <span className="sr-only">{fmt(to, suffix)}</span>
     </span>
   );
 }

@@ -117,4 +117,23 @@ describe('fluxos', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Enviar denúncia' }));
     expect(await screen.findByText('Denúncia enviada')).toBeInTheDocument();
   }, 30000);
+
+  it('fórum: cria tópico, responde e curte', async () => {
+    login();
+    const { user } = renderApp('/forum');
+    await user.click(await screen.findByRole('button', { name: /Novo tópico/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Novo tópico' });
+    await user.type(within(dialog).getByLabelText(/Título/), 'Melhor config de vídeo para CS2?');
+    await user.type(within(dialog).getByLabelText(/Texto/), 'Qual resolução e configuração vocês usam?');
+    await user.click(within(dialog).getByRole('button', { name: 'Publicar' }));
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Melhor config de vídeo para CS2?' }),
+    ).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Responder'), 'Uso 1280x960 esticado.');
+    await user.click(screen.getByRole('button', { name: 'Publicar resposta' }));
+    expect(await screen.findByText('Uso 1280x960 esticado.')).toBeInTheDocument();
+    const like = screen.getByRole('button', { name: /curtir tópico/ });
+    await user.click(like);
+    await waitFor(() => expect(like).toHaveAttribute('aria-pressed', 'true'));
+  });
 });

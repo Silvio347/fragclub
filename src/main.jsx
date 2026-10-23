@@ -16,6 +16,7 @@ import './styles/edit-profile.css';
 import './styles/v3.css';
 import './styles/social.css';
 import './styles/ux.css';
+import './styles/community.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

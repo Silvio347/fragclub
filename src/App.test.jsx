@@ -8,6 +8,15 @@ describe('rotas (smoke)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: /CS2 competitivo/i })).toBeInTheDocument();
   });
 
+  it.each([
+    ['/termos', 'Termos de Uso'],
+    ['/privacidade', 'Política de Privacidade'],
+    ['/faq', 'Perguntas frequentes'],
+  ])('página pública %s abre sem login', async (url, title) => {
+    renderApp(url);
+    expect(await screen.findByRole('heading', { level: 1, name: title })).toBeInTheDocument();
+  });
+
   it('rota protegida sem sessão manda para o login (carregado sob demanda)', async () => {
     renderApp('/inicio');
     expect(await screen.findByRole('heading', { name: 'Entrar' })).toBeInTheDocument();
@@ -24,6 +33,8 @@ describe('rotas (smoke)', () => {
     ['/amigos', /Em partida/i],
     ['/campeonatos/t2', /Copa Noturna #142/i],
     ['/configuracoes', /Novo e-mail/i],
+    ['/forum', /Regras do fórum/i],
+    ['/forum/t2', /Não consigo conectar no servidor/i],
   ])('logado, %s renderiza', async (url, text) => {
     login();
     renderApp(url);

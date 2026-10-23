@@ -13,6 +13,7 @@ import { auth } from './auth';
 import { account } from './account';
 import { search } from './search';
 import { live } from './live';
+import { forum } from './forum';
 
 export const api = {
   auth,
@@ -27,7 +28,9 @@ export const api = {
   notifications,
   search,
   live,
+  forum,
 };
 export { REPORT_REASONS } from './matches';
 export { ApiError } from './client';
 export { realtime } from './realtime';
+export { FORUM_CATEGORIES, FORUM_LIMITS } from './forum';

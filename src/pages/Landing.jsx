@@ -5,6 +5,7 @@ import { ALL_MAPS } from '../data/mock';
 import { useAuth } from '../context/AuthContext';
 import { LevelBadge, MapThumb } from '../components/ui';
 import { Reveal, CountUp } from '../components/motion';
+import { Brand, PublicFooter } from '../components/PublicShell';
 
 const MODES = [
   {
@@ -27,22 +28,13 @@ const FEATURES = [
   { icon: Trophy, title: 'Campeonatos semanais', text: 'Do iniciante ao level 10, com premiação em dinheiro.' },
 ];
 
-function Brand() {
-  return (
-    <Link to="/" className="brand" aria-label="FragClub, página inicial">
-      <span className="brand-mark">F</span>
-      <span className="brand-name">
-        FRAG<span className="accent">CLUB</span>
-      </span>
-    </Link>
-  );
-}
-
 const SECTIONS = [
   { id: 'modos', label: 'Modos' },
   { id: 'stats', label: 'Estatísticas' },
   { id: 'levels', label: 'Levels' },
 ];
+
+const ARRIVE_MS = 1500; // maior duração + atraso das animações de chegada
 
 const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -94,7 +86,8 @@ export default function Landing() {
     clearTimeout(arriveTimer.current);
     arriveCleanup.current?.();
 
-    // A classe fica até o próximo clique (remover reiniciaria as animações de reveal)
+    // A classe sai quando as animações acabam: se ficasse, o "fill" da animação
+    // brigaria com as transições de hover e causava tremidas
     let done = false;
     const start = () => {
       if (done) return;
@@ -102,6 +95,7 @@ export default function Landing() {
       arriveCleanup.current?.();
       void el.offsetWidth; // força reflow para a animação recomeçar
       el.classList.add('lp-arrive');
+      arriveTimer.current = setTimeout(() => el.classList.remove('lp-arrive'), ARRIVE_MS);
     };
 
     // Anima quando a rolagem termina (scrollend) ou após um tempo máximo
@@ -116,7 +110,13 @@ export default function Landing() {
     };
   };
 
-  useEffect(() => () => arriveCleanup.current?.(), []);
+  useEffect(
+    () => () => {
+      arriveCleanup.current?.();
+      clearTimeout(arriveTimer.current);
+    },
+    [],
+  );
 
   return (
     <div className="landing">
@@ -134,6 +134,7 @@ export default function Landing() {
               {s.label}
             </a>
           ))}
+          <Link to="/faq">FAQ</Link>
         </nav>
         <div className="lp-nav-actions">
           {user ? (
@@ -259,12 +260,15 @@ export default function Landing() {
           {MODES.map((m, i) => {
             const Icon = m.icon;
             return (
-              <Reveal key={m.title} delay={i * 90} className="lp-card">
-                <span className="lp-card-icon">
-                  <Icon size={22} aria-hidden="true" />
-                </span>
-                <h3>{m.title}</h3>
-                <p className="muted">{m.text}</p>
+              // O wrapper fica parado (área de hover estável); só o card interno sobe
+              <Reveal key={m.title} delay={i * 90} className="lp-card-wrap">
+                <div className="lp-card">
+                  <span className="lp-card-icon">
+                    <Icon size={22} aria-hidden="true" />
+                  </span>
+                  <h3>{m.title}</h3>
+                  <p className="muted">{m.text}</p>
+                </div>
               </Reveal>
             );
           })}
@@ -344,7 +348,9 @@ export default function Landing() {
         <Reveal className="lp-levels">
           {Array.from({ length: 10 }, (_, i) => (
             <div key={i} className="lp-level" style={{ transitionDelay: `${i * 60}ms` }}>
-              <LevelBadge level={i + 1} size={i === 9 ? 68 : 52} />
+              <span className="lp-level-inner">
+                <LevelBadge level={i + 1} size={i === 9 ? 68 : 52} />
+              </span>
             </div>
           ))}
         </Reveal>
@@ -360,12 +366,7 @@ export default function Landing() {
         </Reveal>
       </section>
 
-      <footer className="lp-footer">
-        <Brand />
-        <p className="muted small">
-          Projeto de estudo. Não afiliado à Valve Corporation. Counter-Strike é marca da Valve Corporation.
-        </p>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

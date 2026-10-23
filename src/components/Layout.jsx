@@ -18,6 +18,7 @@ import {
   ShoppingBag,
   Coins,
   Menu,
+  MessagesSquare,
   Search,
 } from 'lucide-react';
 import { ME } from '../data/mock';
@@ -41,6 +42,7 @@ function navItems() {
     { to: '/jogar', label: 'Jogar', icon: Crosshair },
     { to: '/times', label: 'Times', icon: Shield },
     { to: '/amigos', label: 'Amigos', icon: UserRound },
+    { to: '/forum', label: 'Fórum', icon: MessagesSquare },
     { to: '/ranking', label: 'Ranking', icon: Trophy },
     { to: '/campeonatos', label: 'Campeonatos', icon: Medal },
     { to: `/historico/${ME.nick}`, label: 'Partidas', icon: History },

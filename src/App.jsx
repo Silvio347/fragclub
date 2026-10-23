@@ -33,6 +33,11 @@ const Shop = lazy(() => import('./pages/Shop'));
 const Friends = lazy(() => import('./pages/Friends'));
 const TournamentDetails = lazy(() => import('./pages/TournamentDetails'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Forum = lazy(() => import('./pages/forum/Forum'));
+const Thread = lazy(() => import('./pages/forum/Thread'));
+const Faq = lazy(() => import('./pages/Faq'));
+const Terms = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Terms })));
+const Privacy = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Privacy })));
 
 // Comportamentos do React Router v7 já ativados (evita surpresa no upgrade)
 export const ROUTER_FUTURE = { v7_startTransition: true, v7_relativeSplatPath: true };
@@ -71,6 +76,9 @@ export default function App() {
                       <Route path="/" element={<Landing />} />
                       <Route path="/login" element={<Login />} />
                       <Route path="/cadastro" element={<Register />} />
+                      <Route path="/faq" element={<Faq />} />
+                      <Route path="/termos" element={<Terms />} />
+                      <Route path="/privacidade" element={<Privacy />} />
                       <Route
                         element={
                           <RequireAuth>
@@ -96,6 +104,8 @@ export default function App() {
                         <Route path="campeonatos/:id" element={<TournamentDetails />} />
                         <Route path="amigos" element={<Friends />} />
                         <Route path="configuracoes" element={<Settings />} />
+                        <Route path="forum" element={<Forum />} />
+                        <Route path="forum/:id" element={<Thread />} />
                         <Route path="perfil/editar" element={<EditProfile />} />
                         <Route path="perfil/:nick" element={<ProfileRoute />} />
                         <Route path="premium" element={<Premium />} />

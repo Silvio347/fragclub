@@ -22,6 +22,7 @@ const NOTIF_PREFS = [
   ['challenges', 'Desafios', 'Desafios de lobby recebidos'],
   ['tournaments', 'Campeonatos', 'Inscrições, check-in e resultados'],
   ['shop', 'Loja e pontos', 'Compras, resgates e FragPoints'],
+  ['forum', 'Fórum', 'Respostas nos seus tópicos'],
   ['email', 'Resumo por e-mail', 'Um e-mail semanal com suas estatísticas'],
 ];
 
